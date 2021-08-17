@@ -116,7 +116,7 @@ int Siemens2( int argc, char **argv)
 	int last_pctr=0;
 	int last_dctr=0;
   struct timeval t0,t1;
-FILE *ffff = fopen("tjo.txt", "wb");
+//FILE *ffff = fopen("tjo.txt", "wb");
   
   int coinc_data[10]; // Created by me to hold four variables required for reconstruction i.e 2 for x and y address, time difference, prompt or not
   int PanelA [52][52] = {};
@@ -140,33 +140,33 @@ FILE *ffff = fopen("tjo.txt", "wb");
       case 'A': allc_file=optarg; break;
 			case 'C':	cr_file=optarg; break;
 		}
-fprintf(ffff, " 0\n"); fflush(ffff);
+//fprintf(ffff, " 0\n"); fflush(ffff);
 	if (verbose) printf("%s compiled %s %s\n", version_id, __DATE__, __TIME__);
-fprintf(ffff, " 1\n"); fflush(ffff);
+//fprintf(ffff, " 1\n"); fflush(ffff);
 	if (!lmfile) crash("Please specify input listmode file with -i <filename>\n");
-fprintf(ffff, " 2\n"); fflush(ffff);
+//fprintf(ffff, " 2\n"); fflush(ffff);
 	fptr=fopen( lmfile, "rb"); // to read the data in the listmode file 
-fprintf(ffff, " 3\n"); fflush(ffff);
+//fprintf(ffff, " 3\n"); fflush(ffff);
 	if (!fptr) crash("Unable to open lmfile '%s'\n", lmfile);
-fprintf(ffff, " 4\n"); fflush(ffff);
+//fprintf(ffff, " 4\n"); fflush(ffff);
 	cbufr=(char*)malloc(bufsize); // allocate a buffer memory which holds the bytes from the input file 
-fprintf(ffff, " 5\n"); fflush(ffff);
+//fprintf(ffff, " 5\n"); fflush(ffff);
 	if (!cbufr) crash("malloc for %d bytes failes\n", bufsize);
-fprintf(ffff, " 6\n"); fflush(ffff);
+//fprintf(ffff, " 6\n"); fflush(ffff);
 	nh=1<<tdbits; printf("tdbits=%d nh=%d\n", tdbits,nh);
-fprintf(ffff, " 7\n"); fflush(ffff);
+//fprintf(ffff, " 7\n"); fflush(ffff);
 	chists=(int*) calloc( nxy*nxy*nheads*nh, sizeof(int)); // size of the chist >> cthist.dat file; time histogram on each detector crystal
-fprintf(ffff, " 8\n"); fflush(ffff);
+//fprintf(ffff, " 8\n"); fflush(ffff);
 	if (!chists) crash("calloc failed for chists\n");
-fprintf(ffff, " 9\n"); fflush(ffff);
+//fprintf(ffff, " 9\n"); fflush(ffff);
 	ccnts=(int*) calloc( nxy*nxy*nheads, sizeof(int));
-fprintf(ffff, " 10\n"); fflush(ffff);
+//fprintf(ffff, " 10\n"); fflush(ffff);
 	if (!ccnts) crash("calloc failed for ccnts\n");
-fprintf(ffff, " 11\n"); fflush(ffff);
+//fprintf(ffff, " 11\n"); fflush(ffff);
 	tcor=(int*) calloc( nxy*nxy*nheads, sizeof(int));
-fprintf(ffff, " 12\n"); fflush(ffff);
+//fprintf(ffff, " 12\n"); fflush(ffff);
 	if (!tcor) crash("calloc failed for tcor\n");
-fprintf(ffff, " 13\n"); fflush(ffff);
+//fprintf(ffff, " 13\n"); fflush(ffff);
 	if (tcor_file) {
 		fptr1=fopen(tcor_file, "rb"); // read from the time correction file 
 		if (!fptr1) crash("unable to open tcor_file '%s'\n", tcor_file);
@@ -175,7 +175,7 @@ fprintf(ffff, " 13\n"); fflush(ffff);
 		fclose(fptr1);
 		printf("tcor read from '%s'\n", tcor_file);
 	}
-fprintf(ffff, " 14\n"); fflush(ffff);
+//fprintf(ffff, " 14\n"); fflush(ffff);
 	fptr2=fopen( cthist_file, "wb"); // file pointer for writing the timing histogram 
 	if (!fptr2) crash("Can't create output file '%s'\n", cthist_file);
   if (cr_file) cr_fptr=fopen( cr_file, "w"); // this is a text file 
@@ -312,7 +312,7 @@ fprintf(ffff, " 14\n"); fflush(ffff);
       }
   gettimeofday(&t1, 0);
   printf("Processing complete in %0.1f seconds\n", delta_msec(&t0, &t1)/1000.);
-fclose(ffff);
+//fclose(ffff);
 	system(0);
 }
 /* processing in IDL...

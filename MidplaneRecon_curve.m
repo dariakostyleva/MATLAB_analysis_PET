@@ -193,7 +193,7 @@ title('Projection of image on X')
 
 % saving image as matlab figure
 [filepath,name,ext] = fileparts(datafile_red); %separates path, name and extension of the file
-figname = strcat('Q:\Documents\PET\Figs_June21\',name,'_image.fig'); % create name for figure
+figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_image.fig'); % create name for figure
 saveas(image, figname)  % saves figure 
 
 % stop time counter
