@@ -42,11 +42,11 @@ ylabel('Counts');
 legend;
 
 subplot(2,2,3);
-plot([-80.7:2:158.3],rescale(horProj_C11),'DisplayName','C11');
+plot([-79.7:2:159.3],rescale(horProj_C11),'DisplayName','C11');
 hold on;
-plot([-80.7:2:158.3],rescale(horProj_C10),'DisplayName','C10');
+plot([-79.7:2:159.3],rescale(horProj_C10),'DisplayName','C10');
 hold on;
-plot([-80.7:2:158.3],rescale(horProj_C12),'DisplayName','C12');
+plot([-79.7:2:159.3],rescale(horProj_C12),'DisplayName','C12');
 hold off;
 title('Projection along beam from left to right, ~ 39 mm range of Carbons in PMMA, C10,12 achro, C11 mono modes of FRS')
 xlabel('Depth in PMMA (mm)');

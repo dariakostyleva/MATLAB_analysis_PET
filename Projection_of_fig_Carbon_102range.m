@@ -42,9 +42,9 @@ ylabel('Counts');
 legend;
 
 subplot(2,2,3);
-plot([-16.4:2:222.6],rescale(horProj_C11),'DisplayName','C11');
+plot([-16.42:2:222.58],rescale(horProj_C11),'DisplayName','C11');
 hold on;
-plot([-16.4:2:222.6],rescale(horProj_C10),'DisplayName','C10');
+plot([-16.42:2:222.58],rescale(horProj_C10),'DisplayName','C10');
 hold on;
 plot([-49:2:190],rescale(horProj_C12),'DisplayName','C12');
 hold off;
