@@ -46,10 +46,10 @@ colorbar
 view(2)
 
 [filepath,name,ext] = fileparts(datafile_red); %separates path, name and extension of the file
-figname = strcat('C:\Users\Administrator\Documents\Scanner_at_GSI\Pics\',name,'_flood_map.fig'); % create name for figure
+figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_flood_map.fig'); % create name for figure
 saveas(gcf, figname)  % save figure with the proper name to folder
-figname = strcat('C:\Users\Administrator\Documents\Scanner_at_GSI\Pics\',name,'_flood_map.png'); % create name for figure
-saveas(gcf, figname)  % save figure with the proper name to folder
+%figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_flood_map.png'); % create name for figure
+%saveas(gcf, figname)  % save figure with the proper name to folder
 
 
 % 2D PET histos
@@ -94,10 +94,10 @@ bar(xaxis,county,1)
 xlabel('Crystal ID Y in both heads')
 ylabel('Intensity')
 
-figname = strcat('C:\Users\Administrator\Documents\Scanner_at_GSI\Pics\',name,'_2d_pet.fig');
+figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_2d_pet.fig');
 saveas(gcf, figname)
-figname = strcat('C:\Users\Administrator\Documents\Scanner_at_GSI\Pics\',name,'_2d_pet.png');
-saveas(gcf, figname)
+%figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_2d_pet.png');
+%saveas(gcf, figname)
 
 % stop time counter
 toc;
