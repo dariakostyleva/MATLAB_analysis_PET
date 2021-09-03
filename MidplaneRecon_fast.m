@@ -87,12 +87,12 @@ colorbar
 toc;
 
 figure('Name','Projection of Midplane reconstruction','NumberTitle','off');
-horProj = sum(midplaneImage, 1);
+horProj = sum(midplaneImage, 2);
 xx = [-104:208/103:104];
 plot(xx,horProj);
 set(gca,'ColorScale','log');
-
-[filepath,name,ext] = fileparts(datafile_red); %separates path, name and extension of the file
-figname = strcat('Q:\Documents\PET\Pics\',name,'_reconstr.png'); % create name for figure
-saveas(gcf, figname)  % save figure with the proper name to folder
+% 
+% [filepath,name,ext] = fileparts(datafile_red); %separates path, name and extension of the file
+% figname = strcat('Q:\Documents\PET\Pics\',name,'_reconstr.png'); % create name for figure
+% saveas(gcf, figname)  % save figure with the proper name to folder
 

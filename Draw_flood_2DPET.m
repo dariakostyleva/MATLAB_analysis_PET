@@ -10,7 +10,6 @@ datafile_red =  uigetfile('*_red.mat')
 z=load(datafile_red)
 zz=z.z; % don't know yet why this line is needed
 clear z;
-
 % assign each array a column with corresponding data
 %                                                                                                                                                                                                 
 %cax = zz(:,1);
@@ -18,6 +17,18 @@ clear z;
 %cbx = zz(:,3);
 %                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 %cby = zz(:,4);
+
+% For files from _0036 (June data) uncomment flipping below!
+% %%%%%%%%%%%%%%%% FLIPPING DET 0 and 1 in DEA6 %%%%%%%%%%%%%%%%%
+% for i = 1 : length(zz)
+%      if zz(i,3) >= 39 && zz(i,3) <= 51 && zz(i,4) >= 39 && zz(i,4) <= 51
+%         zz(i,4) = zz(i,4) - 13;
+%     elseif zz(i,3) >= 39 && zz(i,3) <= 51 && zz(i,4) >= 26 && zz(i,4) <= 38
+%         zz(i,4) = zz(i,4) + 13;
+%     end   
+% end
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 clf('reset') % clear current figure window
 figname = strcat('Flood maps - data file:',name)

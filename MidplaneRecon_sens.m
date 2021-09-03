@@ -1,4 +1,5 @@
-% ***** Macro to make reconstruction of image in a mid plane z = 0 ****** 
+% Macro based on MidplaneRecon_curve, but also building 2d histogram and it
+% projection on beam axis needed for sensitivity correction
 
 datafile_red = uigetfile('*red.mat')
 z=load(datafile_red)
@@ -20,8 +21,8 @@ H = 2*dx + 13*h; % mm, total calculated width of one block
 mu = 1/12; % 1/mm, parameter for randomization of DOI
 det_length = 20; % mm, lenght of block detector
 
- imgx=zeros(1,nevents); % array to store x coord of midplane for 2D hist
- imgy=zeros(1,nevents); % array to store y coord of midplane for 2D hist
+imgx=zeros(1,nevents); % array to store x coord of midplane for 2D hist
+imgy=zeros(1,nevents); % array to store y coord of midplane for 2D hist
 
 midplaneImage = zeros(120,120); %I have to put 120 here (and not half of FOV) because x is calculated using t which makes it larger. So shift must be larger
 doi = zeros(1,nevents); % array to hold randomized DOI, just to double-check
@@ -54,7 +55,8 @@ for n= 1:nevents
             break;
         end
     end
- 
+    
+    %%%%%%%%%%%%%%% Reconstruction %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % 1st step:
     %    randomisation is added to x and y, and corresp z is calculated with rand DOI  
     % 2nd step:
@@ -93,13 +95,13 @@ for n= 1:nevents
         end
     end
     
-%     %%%%%%%%%%%%%%%% FLIPPING DET 0 and 1 in DEA6 %%%%%%%%%%%%%%%%%
-%     if events(n,3) >= 39 && events(n,3) <= 51 && events(n,4) >= 39 && events(n,4) <= 51
-%        events(n,4) = events(n,4) - 13;
-%     elseif events(n,3) >= 39 && events(n,3) <= 51 && events(n,4) >= 26 && events(n,4) <= 38
-%        events(n,4) = events(n,4) + 13;
-%     end
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%% FLIPPING DET 0 and 1 in DEA6 %%%%%%%%%%%%%%%%%
+    if events(n,3) >= 39 && events(n,3) <= 51 && events(n,4) >= 39 && events(n,4) <= 51
+       events(n,4) = events(n,4) - 13;
+    elseif events(n,3) >= 39 && events(n,3) <= 51 && events(n,4) >= 26 && events(n,4) <= 38
+       events(n,4) = events(n,4) + 13;
+    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % DEA6 (columns 3 and 4 in events are the x and y crystal ID in DEA6) 
     crystalPos2y = geom(events(n,4)+1,3) + h*(rand - 1/2); % y is calculated the same for all blocks
@@ -141,98 +143,49 @@ end
 % NOTE: what is defined as the scanner x-coordinate is the y-coordinate in
 % the image...
 
-figure('Name','Reconstruction, 2d image','NumberTitle','off');
+figure('Name','Reconstruction, 2d image and histo','NumberTitle','off');
+
+% reconstructed image just for comparison
+subplot(2,2,1)
 xrange = [-119:2:119];
 yrange = [-119:2:119];
 image = imagesc(xrange,yrange,midplaneImage)
-title(datafile_red,'Interpreter', 'none')  
-% dim = [.6 .6 .3 .3]; % dimention of annotation
-% text = {'2D image', datafile_red}; % text of annotation
-% annotation('textbox',dim,'String',text,'FitBoxToText','on','Interpreter', 'none');
-colorbar;
-colormap(parula);
-xlabel('X (mm)');
-ylabel('Y (mm)');
-set(gca,'ColorScale','log');
+title(datafile_red,'Interpreter', 'none')
 axis square;
 axis xy;
-ax = gca;
-ax.FontSize = 14;
 ax.XLim = [-120,120];
 ax.YLim = [-120,120];
 xticks([-120:20:120]);
 yticks([-120:20:120]);
-ax.TickDir = 'out';
-ax.TickLength = [0.02 0.02];
-ax.XGrid = 'on';
-ax.YGrid = 'on';
-ax.GridLineStyle = '--';
-ax.GridAlphaMode = 'manual';
-ax.GridAlpha = 0.5;
-ax.GridColorMode = 'manual';
-ax.GridColor = 'white';
-
-figure('Name','Auxiliary plots','NumberTitle','off');
-subplot(2,2,1) % go to subplot
-hist(doi, 100);
-xlabel('DOI (mm)');
-ylabel('Counts');
-title('Randomized DOI')
-movegui('east'); % moves plot on the screen 
-
-subplot(2,2,2)
-xx = 0:1:300;
-yy = exp(-xx*mu);
-plot(xx,yy)
-xlabel('Exponential function exp(-x/12)');
-ylabel('Counts');
-title('Exponential PDF')
-
-subplot(2,2,3)
-horProj = sum(midplaneImage, 1);
-xx = [-119:2:119];
-plot(xx,horProj);
-%histogram(horProj)
-%plot(horProj)
 xlabel('X (mm)');
-ylabel('Counts');
-set(gca,'ColorScale','log');
-title('Projection of image on X')
+ylabel('Y (mm)');
 
-% saving image as matlab figure
-[filepath,name,ext] = fileparts(datafile_red); %separates path, name and extension of the file
-figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_image.fig'); % create name for figure
-saveas(image, figname)  % saves figure 
+%reconstructed 2d histogram with ~ 4 mm binning 
+subplot(2,2,2)
+im_hist = histogram2(-imgy,imgx,'BinWidth',[4 4],'DisplayStyle','tile');
+title(datafile_red,'Interpreter', 'none')
+axis square;
+edgesx = im_hist.XBinEdges;
+edgesy = im_hist.YBinEdges;
+counts = im_hist.BinCounts;
+values = im_hist.Values;
+bin_width = im_hist.BinWidth;
+counts_proj_beam = sum(counts, 1);
+xlabel('X (mm)');
+ylabel('Y (mm)');
 
-% stop time counter
-toc;
+subplot(2,2,4);
+plot(counts_proj_beam,'DisplayName','Projection');
+hold on;
+plot(smooth(counts_proj_beam,3),'DisplayName','Projection smoothed, span 3')
+plot(smooth(counts_proj_beam,5),'DisplayName','Projection smoothed, span 5')
+hold off;
+ax.XLim = [0,55];
+xlabel('Image plane bin number');
+ylabel('Counts per 4 mm bin');
+legend;
 
-% ***** 2D histogram, uncomment if needed ********
-% figure('Name','Reconstruction, 2d histo','NumberTitle','off'); % create figure
-% set(gcf,'position',[100,300,1100,550]) % set dimentions to fit the screen
-% im_hist = histogram2(-imgy,imgx,[113 111],'DisplayStyle','tile');
-% title('2D histogram') 
-% colorbar;
-% colormap(parula);
-% xlabel('X (mm)');
-% ylabel('Y (mm)');
-% set(gca,'ColorScale','log');
-% axis square;
-% axis xy;
-% ax = gca;
-% ax.FontSize = 14;
-% ax.XLim = [-105,105];
-% ax.YLim = [-105,105];
-% xticks([-120:20:120]);
-% yticks([-120:20:120]);
-% ax.TickDir = 'out';
-% ax.TickLength = [0.02 0.02];
-% ax.XGrid = 'on';
-% ax.YGrid = 'on';
-% ax.GridLineStyle = '--';
-% ax.GridAlphaMode = 'manual';
-% ax.GridAlpha = 0.5;
-% ax.GridColorMode = 'manual';
-% ax.GridColor = 'white';
-% %set(gca,'ColorScale','log');
-
+% writing 4mm n=binned projection into txt file
+[path,name,ext] = fileparts(datafile_red);
+filename = char(strcat(name,'_proj.txt'));
+writematrix(counts_proj_beam,filename);
