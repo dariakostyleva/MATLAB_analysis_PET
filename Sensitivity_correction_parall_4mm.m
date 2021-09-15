@@ -1,4 +1,4 @@
-% This script performs sensitivity correction. 
+% This script performs sensitivity correction based on 4 mm binned data
 % Author: Daria K.
 
 fig_7 = openfig('Q:\Documents\PET\MATLAB_figures_PET\june21_Ge68_source_007_red_image.fig');

@@ -7,6 +7,8 @@ tic; % Start timnae counter
 events=z.z;
 clear z;
 nevents=length(events)  % number of events
+%artificially reduce statistics
+nevents = 10^7
 
 
 PlaneOffset = 0;   % position of image plane from scanner center, in mm 
@@ -95,13 +97,13 @@ for n= 1:nevents
         end
     end
     
-    %%%%%%%%%%%%%%%% FLIPPING DET 0 and 1 in DEA6 %%%%%%%%%%%%%%%%%
-    if events(n,3) >= 39 && events(n,3) <= 51 && events(n,4) >= 39 && events(n,4) <= 51
-       events(n,4) = events(n,4) - 13;
-    elseif events(n,3) >= 39 && events(n,3) <= 51 && events(n,4) >= 26 && events(n,4) <= 38
-       events(n,4) = events(n,4) + 13;
-    end
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     %%%%%%%%%%%%%%%% FLIPPING DET 0 and 1 in DEA6 %%%%%%%%%%%%%%%%%
+%     if events(n,3) >= 39 && events(n,3) <= 51 && events(n,4) >= 39 && events(n,4) <= 51
+%        events(n,4) = events(n,4) - 13;
+%     elseif events(n,3) >= 39 && events(n,3) <= 51 && events(n,4) >= 26 && events(n,4) <= 38
+%        events(n,4) = events(n,4) + 13;
+%     end
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % DEA6 (columns 3 and 4 in events are the x and y crystal ID in DEA6) 
     crystalPos2y = geom(events(n,4)+1,3) + h*(rand - 1/2); % y is calculated the same for all blocks
@@ -159,7 +161,45 @@ xticks([-120:20:120]);
 yticks([-120:20:120]);
 xlabel('X (mm)');
 ylabel('Y (mm)');
+%set(gca,'ColorScale','log');
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%reconstructed 2d histogram with ~ 2 mm binning (keep original binning)
+%here I take not a full projection, but a slice of 2 mm where the image has
+%maximum intensity. The indexes of this max number are max_row and max_col
+[maximum, index] = max(midplaneImage(:));
+[max_row, max_col] = ind2sub(size(midplaneImage),index);
+%proj2mm = midplaneImage(max_row,:); %if source is parallel to beam
+proj2mm = midplaneImage(:,max_col) %if source is perpendicular to beam
+ 
+subplot(2,2,2);
+plot(xrange,proj2mm);
+% im_hist = histogram2(-imgy,imgx,'BinWidth',[2 2],'DisplayStyle','tile');
+% title(datafile_red,'Interpreter', 'none')
+% axis square;
+% edgesx = im_hist.XBinEdges;
+% edgesy = im_hist.YBinEdges;
+% counts = im_hist.BinCounts;
+% values = im_hist.Values;
+% bin_width = im_hist.BinWidth;
+% counts_proj_beam = sum(counts, 1);
+% xlabel('X (mm)');
+% ylabel('Y (mm)');
+
+% so that projection doesn't contain complete zeros, this is anyway on the
+% edges of FOV
+for i = 1 : length(proj2mm)
+    if proj2mm(i) == 0
+        proj2mm(i) = 0.0001;
+    end
+end
+
+% writing 2mm n=binned projection into txt file
+[path,name,ext] = fileparts(datafile_red);
+filename = char(strcat(name,'_proj_2mm.txt'));
+writematrix(proj2mm,filename);
+return;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %reconstructed 2d histogram with ~ 4 mm binning 
 subplot(2,2,2)
 im_hist = histogram2(-imgy,imgx,'BinWidth',[4 4],'DisplayStyle','tile');
