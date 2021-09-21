@@ -1,4 +1,5 @@
 % This script performs sensitivity correction based on 2 mm binned data
+% and 10 files in parallel and perpendicular direction
 % Author: Daria K.
 
 fig_7 = openfig('Q:\Documents\PET\MATLAB_figures_PET\june21_Ge68_source_007_red_image.fig','invisible');
@@ -110,6 +111,20 @@ proj_file0059 = importdata('Q:\Documents\PET\MATLAB_analysis_PET\68ge_calib059_r
 proj_file0060 = importdata('Q:\Documents\PET\MATLAB_analysis_PET\68ge_calib060_red_proj_2mm.txt');
 proj_file0061 = importdata('Q:\Documents\PET\MATLAB_analysis_PET\68ge_calib061_red_proj_2mm.txt');
 
+time_file007 = 191.819; %length of the file in seconds, daq time from BasicDataFileProperties
+time_file008 = 225.315;
+time_file009 = 278.788;
+time_file0010 = 223.758;
+time_file0011 = 283.985;
+time_file0057 = 195.336;
+time_file0058 = 156.814;
+time_file0059 = 137.295;
+time_file0060 = 160.05;
+time_file0061 = 216.034;
+
+time_O16 = 1800.01;
+
+
 figure('Name','Slices','NumberTitle','off');
 subplot(2,2,1);
 hold on;
@@ -164,11 +179,34 @@ legend;
 % combining files into an array
 combined_parall = zeros(5, 120); 
 combined_perpendic = zeros(120, 5);
-combined_parall(1,:) = proj_file009;
-combined_parall(2,:) = proj_file008;
-combined_parall(3,:) = proj_file007;
-combined_parall(4,:) = proj_file0010;
-combined_parall(5,:) = proj_file0011; 
+
+%%% 68Ge line source %%% 
+
+% values are calculated from nominal activity of 46.22 MBq
+source_activ_Feb = 12.8; % MBq i.e. decays/sec on 26.02.2021
+source_activ_Jun = 9.5; % MBq i.e. decays/sec 24.06.2021
+source_length = 310/2; % mm length over bin width 
+source_activ_Feb_rand = 12.8/source_length; % MBq/2mm i.e. activity per unit length
+source_activ_Jun_rand = 9.5/source_length; % MBq/2mm i.e. activity per unit length
+% randomising source activity pm5% around estimated value
+% source_activ_Feb_rand = (source_activ_Feb*1.05 - source_activ_Feb*0.95).*rand(120,1) + source_activ_Feb*0.95;
+% source_activ_Jun_rand = (source_activ_Jun*1.05 - source_activ_Jun*0.95).*rand(1,120) + source_activ_Jun*0.95;
+
+% scale in respect with source activity
+% for this I need to go from counts to counts/sec in all projections
+% so I divide by the file timelength first and source activity, result is
+% in cps/MBq/2mm
+combined_parall(1,:) = proj_file009/time_file009./source_activ_Jun_rand;
+combined_parall(2,:) = proj_file008/time_file008./source_activ_Jun_rand;
+combined_parall(3,:) = proj_file007/time_file007./source_activ_Jun_rand;
+combined_parall(4,:) = proj_file0010/time_file0010./source_activ_Jun_rand;
+combined_parall(5,:) = proj_file0011/time_file0011./source_activ_Jun_rand; 
+
+combined_perpendic(:,1) = proj_file0061/time_file0061./source_activ_Feb_rand;
+combined_perpendic(:,2) = proj_file0060/time_file0060./source_activ_Feb_rand;
+combined_perpendic(:,3) = proj_file0059/time_file0059./source_activ_Feb_rand;
+combined_perpendic(:,4) = proj_file0058/time_file0058./source_activ_Feb_rand;
+combined_perpendic(:,5) = proj_file0057/time_file0057./source_activ_Feb_rand;
 
 % combined_perpendic(:,1) = proj_file0043;
 % combined_perpendic(:,2) = proj_file0042;
@@ -176,34 +214,50 @@ combined_parall(5,:) = proj_file0011;
 % combined_perpendic(:,4) = proj_file0044;
 % combined_perpendic(:,5) = proj_file0045;
 
-combined_perpendic(:,1) = proj_file0061;
-combined_perpendic(:,2) = proj_file0060;
-combined_perpendic(:,3) = proj_file0059;
-combined_perpendic(:,4) = proj_file0058;
-combined_perpendic(:,5) = proj_file0057;
-
 % scale in respect with maximum number of counts in center FOV
 % combined_parall = combined_parall/max(proj_file007); 
 % combined_perpendic = combined_perpendic/max(proj_file0059);
-source_activ = 13e6;
-combined_parall = combined_parall/max(source_activ); 
-combined_perpendic = combined_perpendic/max(source_activ);
 
-comb_merged_no_int = combined_perpendic*combined_parall;
-%comb_merged_no_int = combined_parall;
+% combined arrays are also in activity units, so result has no dimension
+%combined_parall = combined_parall/source_activ_Jun; 
+%combined_perpendic = combined_perpendic/source_activ_Feb;
 
-figure('Name','Sensitivity maps NO interpolation','NumberTitle','off');
-subplot(2,2,1)
+comb_merged_no_int = combined_perpendic*combined_parall; % (cps/MBq)^2
+filename = char('Sensitivity_corr_matrix.txt');
+writematrix(comb_merged_no_int,filename);
+
+image_7 = image_7/time_file007; % cps
+image_59 = image_59/time_file0059; % cps
+image_O16 = image_O16/time_O16; % cps
+
+%%% NOTE: my corrected image has units 10^6 MBq per 2mm bin
+%%% so for convenience I scale it to Bq by factor 10^12
+factor = 10^12; % from 10^6 MBq to Bq
+
+figure('Name','Sensitivity maps NO interpolation');
+subplot(2,2,1);
 surf(comb_merged_no_int);
-subplot(2,2,2)
+xlabel('X (mm)');
+ylabel('Y (mm)');
+zlabel('Absolute sensitivity squared (cps/MBq)^2 per 2 mm^2 bin');
+title('Correction matrix as a product of arrays corresp. to parallel and perpendicular source placements');
+subplot(2,2,2);
 surf(combined_perpendic);
-subplot(2,2,3)
+xlabel('X (mm)');
+ylabel('Y (mm)');
+zlabel('Absolute sensitivity (cps/MBq) per 2 mm bin');
+title('Array constructed from perpendicular source placements');
+subplot(2,2,3);
 surf(combined_parall);
+xlabel('X (mm)');
+ylabel('Y (mm)');
+zlabel('Absolute sensitivity (cps/MBq) per 2 mm bin');
+title('Array constructed from parallel source placements');
+
 
 figure('Name','Images with sensitivity maps NO interpolation','NumberTitle','off');
-
 subplot(3,2,1);
-imagesc(xx,yy,image_7./comb_merged_no_int);
+imagesc(xx,yy,image_7./comb_merged_no_int*factor);
 title('Corrected image of the source placed parallel, file 7');
 axis square;
 axis xy;
@@ -214,6 +268,9 @@ yticks([-120:20:120]);
 xlabel('X (mm)');
 ylabel('Y (mm)');
 set(gca,'ColorScale','log');
+colorbar;
+a = colorbar;
+ylabel(a,'Activity (Bq) per 2 mm bin','FontSize',10.45,'Rotation',270);
 
 subplot(3,2,2);
 hold on;
@@ -222,12 +279,12 @@ plot(xx,rescale(comb_merged_no_int(61,:)),'DisplayName','Slice of correction map
 plot(xx,rescale(image_7(61,:)./comb_merged_no_int(61,:)),'DisplayName','Slice of corrected image of the source placed parallel, file 7');
 hold off;
 xlabel('X (mm)');
-ylabel('Counts');
+ylabel('Normalized counts (a.u.)');
 set(gca,'ColorScale','log');
 legend;
 
 subplot(3,2,3);
-imagesc(xx,yy,image_59./comb_merged_no_int);
+imagesc(xx,yy,image_59./comb_merged_no_int*factor);
 title('Corrected image of the source placed perdendicular, file 59');
 axis square;
 axis xy;
@@ -238,6 +295,9 @@ yticks([-120:20:120]);
 xlabel('X (mm)');
 ylabel('Y (mm)');
 set(gca,'ColorScale','log');
+colorbar;
+a = colorbar;
+ylabel(a,'Activity (Bq) per 2 mm bin','FontSize',10.45,'Rotation',270);
 
 subplot(3,2,4);
 hold on;
@@ -246,12 +306,12 @@ plot(xx,rescale(comb_merged_no_int(:,62)),'DisplayName','Slice of correction map
 plot(xx,rescale(image_59(:,62)./comb_merged_no_int(:,62)),'DisplayName','Slice of corrected image of the source placed perpendicular, file 59');
 hold off;
 xlabel('X (mm)');
-ylabel('Counts');
+ylabel('Normalized counts (a.u.)');
 set(gca,'ColorScale','log');
 legend;
 
 subplot(3,2,5);
-corr_img = imagesc(xx,yy,image_O16./comb_merged_no_int);
+corr_img = imagesc(xx,yy,image_O16./comb_merged_no_int*factor);
 title('Corrected image of O16, file 15');
 axis square;
 axis xy;
@@ -262,23 +322,26 @@ yticks([-120:20:120]);
 xlabel('X (mm)');
 ylabel('Y (mm)');
 set(gca,'ColorScale','log');
+colorbar;
+a = colorbar;
+ylabel(a,'Activity (Bq) per 2 mm bin','FontSize',10.45,'Rotation',270);
 
 subplot(3,2,6);
-factor = 44130/1800.01; % number of counts in the peak over measurement time
 hold on;
-plot(xx,rescale(image_O16(61,:),0,factor),'DisplayName','Slice of uncorrected 16O image, file 15');
-plot(xx,rescale(image_O16(61,:)./comb_merged_no_int(61,:),0,factor),'DisplayName','Slice of corrected 16O image, file 15');
+plot(xx,rescale(image_O16(61,:)),'DisplayName','Slice of uncorrected 16O image, file 15');
+plot(xx,rescale(image_O16(61,:)./comb_merged_no_int(61,:)),'DisplayName','Slice of corrected 16O image, file 15');
 % file with image_O16 has length of 1800.01 seconds 
 hold off;
 xlabel('X (mm)');
-ylabel('Counts per second');
+ylabel('Normalized counts (a.u.)');
 legend;
 
 
 figure('Name','Image corrected with its own projection','NumberTitle','off');
 hold on;
-plot(rescale(image_41(:,62)./proj_file0041));
-plot(rescale(proj_file0041));
+plot(image_41(:,62)./proj_file0041);
+plot(smooth(image_41(:,62)./proj_file0041));
+%plot(proj_file0041);
 hold off;
 
 figure;
@@ -289,14 +352,12 @@ subplot(2,2,2)
 imagesc(xx,yy,comb_merged_no_int);
 set(gca,'ColorScale','log');
 subplot(2,2,3)
-imagesc(xx,yy,image_7./comb_merged_no_int);
+imagesc(xx,yy,image_7./comb_merged_no_int*factor);
 set(gca,'ColorScale','log');
 subplot(2,2,4)
-imagesc(xx,yy,image_7./comb_merged_no_int);
+imagesc(xx,yy,image_7./comb_merged_no_int*factor);
 
-filename = char('sensitivity_corr_matrix.txt');
-writematrix(comb_merged_no_int,filename);
-
+return;
 %%%%% If interpolation is used %%%%
 
 % x coordinates of sampling points, values in mm
