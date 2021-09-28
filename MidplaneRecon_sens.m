@@ -8,7 +8,7 @@ events=z.z;
 clear z;
 nevents=length(events)  % number of events
 %artificially reduce statistics
-nevents = 10^7
+%nevents = 10^7
 
 
 PlaneOffset = 0;   % position of image plane from scanner center, in mm 
@@ -161,7 +161,7 @@ xticks([-120:20:120]);
 yticks([-120:20:120]);
 xlabel('X (mm)');
 ylabel('Y (mm)');
-%set(gca,'ColorScale','log');
+set(gca,'ColorScale','log');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %reconstructed 2d histogram with ~ 2 mm binning (keep original binning)
@@ -169,8 +169,8 @@ ylabel('Y (mm)');
 %maximum intensity. The indexes of this max number are max_row and max_col
 [maximum, index] = max(midplaneImage(:));
 [max_row, max_col] = ind2sub(size(midplaneImage),index);
-%proj2mm = midplaneImage(max_row,:); %if source is parallel to beam
-proj2mm = midplaneImage(:,max_col) %if source is perpendicular to beam
+proj2mm = midplaneImage(max_row,:); %if source is parallel to beam
+%proj2mm = midplaneImage(:,max_col) %if source is perpendicular to beam
  
 subplot(2,2,2);
 plot(xrange,proj2mm);

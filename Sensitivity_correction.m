@@ -1,5 +1,5 @@
 % This script performs sensitivity correction based on 2 mm binned data
-% and 10 files in parallel and perpendicular direction
+% and 10 files in parallel and perpendicular direction, PMMA on pin 5
 % Author: Daria K.
 
 fig_7 = openfig('Q:\Documents\PET\MATLAB_figures_PET\june21_Ge68_source_007_red_image.fig','invisible');
@@ -91,7 +91,7 @@ xx = [-119:2:119];
 yy = [-119:2:119];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%% ii) Building 2d matrix based on five files %%%%%%%% 
+%%%%%% ii) Building 2d matrix based on ten files %%%%%%%% 
 %%%%%%       Source placed parallel to beam       %%%%%%%%
 proj_file007 = importdata('Q:\Documents\PET\MATLAB_analysis_PET\june21_Ge68_source_007_red_proj_2mm.txt');
 proj_file008 = importdata('Q:\Documents\PET\MATLAB_analysis_PET\june21_Ge68_source_008_red_proj_2mm.txt');
@@ -116,11 +116,16 @@ time_file008 = 225.315;
 time_file009 = 278.788;
 time_file0010 = 223.758;
 time_file0011 = 283.985;
-time_file0057 = 195.336;
-time_file0058 = 156.814;
-time_file0059 = 137.295;
-time_file0060 = 160.05;
-time_file0061 = 216.034;
+time_file0057 = 195.336; %WARNING: these are shorter to correspond to 10^7 events
+time_file0058 = 156.814; %WARNING: these are shorter to correspond to 10^7 events
+time_file0059 = 137.295; %WARNING: these are shorter to correspond to 10^7 events
+time_file0060 = 160.05;  %WARNING: these are shorter to correspond to 10^7 events
+time_file0061 = 216.034; %WARNING: these are shorter to correspond to 10^7 events
+time_file0041 = 200.949;
+time_file0042 = 235.727;
+time_file0043 = 316.095;
+time_file0044 = 232.427;
+time_file0045 = 286.423;
 
 time_O16 = 1800.01;
 
@@ -175,6 +180,15 @@ ylabel('Counts per 2 mm bin');
 xticks([0:10:120]);
 legend;
 
+subplot(2,2,4);
+hold on;
+plot(proj_file0041,'DisplayName','Source is 0.0 cm, file 41');
+plot(proj_file0042,'DisplayName','Source is +2.5 cm, file 42');
+plot(proj_file0043,'DisplayName','Source is +5.0 cm, file 43');
+plot(proj_file0044,'DisplayName','Source is -2.5 cm, file 44');
+plot(proj_file0045,'DisplayName','Source is -5.0 cm, file 45');
+hold off;
+legend;
 
 % combining files into an array
 combined_parall = zeros(5, 120); 
@@ -208,11 +222,11 @@ combined_perpendic(:,3) = proj_file0059/time_file0059./source_activ_Feb_rand;
 combined_perpendic(:,4) = proj_file0058/time_file0058./source_activ_Feb_rand;
 combined_perpendic(:,5) = proj_file0057/time_file0057./source_activ_Feb_rand;
 
-% combined_perpendic(:,1) = proj_file0043;
-% combined_perpendic(:,2) = proj_file0042;
-% combined_perpendic(:,3) = proj_file0041;
-% combined_perpendic(:,4) = proj_file0044;
-% combined_perpendic(:,5) = proj_file0045;
+% combined_perpendic(:,1) = proj_file0043/time_file0043./source_activ_Jun_rand;
+% combined_perpendic(:,2) = proj_file0042/time_file0042./source_activ_Jun_rand;
+% combined_perpendic(:,3) = proj_file0041/time_file0041./source_activ_Jun_rand;
+% combined_perpendic(:,4) = proj_file0044/time_file0044./source_activ_Jun_rand;
+% combined_perpendic(:,5) = proj_file0045/time_file0045./source_activ_Jun_rand;
 
 % scale in respect with maximum number of counts in center FOV
 % combined_parall = combined_parall/max(proj_file007); 
