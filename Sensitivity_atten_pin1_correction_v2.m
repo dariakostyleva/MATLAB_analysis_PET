@@ -1,5 +1,5 @@
 % This script performs sensitivity AND attenuation correction based on 2 mm binned data
-% and 10 files in parallel ( PMMA on pin 1) and perpendicular (PMMA on pin 5)
+% and 5 files in parallel( PMMA on pin 1) using interpolation
 % Author: Daria K.
 
 % source data parallel
@@ -216,17 +216,27 @@ combined_perpendic(:,3) = proj_file59/time_file59./source_activ_Feb_rand;
 combined_perpendic(:,4) = proj_file58/time_file58./source_activ_Feb_rand;
 combined_perpendic(:,5) = proj_file57/time_file57./source_activ_Feb_rand;
 
-comb_merged_no_int = combined_perpendic*combined_parall; % (cps/MBq)^2
-filename = char('Sensitivity_corr_atten_pin1_matrix.txt');
-writematrix(comb_merged_no_int,filename);
+xs1 = [-50, -25, 0, 25, 50];
+[Xs1,Ys1] = meshgrid([-119:2:119],xs1);
+[Xq1,Yq1] = ndgrid(linspace(-119,119,120));
+combined_parall_int = interp2(Xs1,Ys1,combined_parall,Xq1,Yq1); 
+% extrapolation outside the range
+[Xs2,Ys2] = ndgrid(xs1,linspace(-119,119,120)); %for gridded interpolant
+[Xq2,Yq2] = ndgrid(linspace(-119,119,120));
+F2 = griddedInterpolant(Xs2,Ys2,combined_parall,'linear','linear');
+combined_parall_int_ext = F2(Xq2,Yq2); 
+
+%comb_merged_no_int = combined_perpendic*combined_parall; % (cps/MBq)^2
+% filename = char('Sensitivity_corr_atten_pin1_matrix.txt');
+% writematrix(comb_merged_no_int,filename);
 
 figure('Name','Sensitivity maps NO interpolation');
 subplot(2,2,1);
-surf(comb_merged_no_int);
+surf(combined_parall_int_ext);
 xlabel('X (mm)');
 ylabel('Y (mm)');
 zlabel('Absolute sensitivity squared (cps/MBq)^2 per 2 mm^2 bin');
-title('Correction matrix as a product of arrays corresp. to parallel and perpendicular source placements');
+title('Array constructed from parallel source placements and interpolated within pm50 mm and extr outside');
 subplot(2,2,2);
 surf(combined_perpendic);
 xlabel('X (mm)');
@@ -251,9 +261,12 @@ yy = [-119:2:119];
 % %%% so for convenience I scale it to Bq by factor 10^12
 factor = 10^12; % from 10^6 MBq to Bq
 
+figure;
+imagesc(xx,yy,combined_parall_int_ext);
+
 figure('Name','Oxygen images with sensitivity maps NO interpolation','NumberTitle','off');
 subplot(3,2,1);
-corr_img = imagesc(xx,yy,image_O16./comb_merged_no_int*factor);
+corr_img = imagesc(xx,yy,image_O16./combined_parall_int_ext);
 title('Corrected image of O16, file 5');
 axis square;
 axis xy;
@@ -271,7 +284,7 @@ ylabel(a,'Activity (Bq) per 2 mm bin','FontSize',10.45,'Rotation',270);
 subplot(3,2,2);
 hold on;
 plot(xx,rescale(image_O16(61,:)),'DisplayName','Slice of uncorrected 16O image, file 14');
-plot(xx,rescale(image_O16(61,:)./comb_merged_no_int(61,:)),'DisplayName','Slice of corrected 16O image, file 14');
+plot(xx,rescale(image_O16(61,:)./combined_parall_int_ext(61,:)),'DisplayName','Slice of corrected 16O image, file 14');
 % file with image_O16 has length of 1800.01 seconds 
 hold off;
 xlabel('X (mm)');
@@ -279,7 +292,7 @@ ylabel('Normalized counts (a.u.)');
 legend;
 
 subplot(3,2,3);
-corr_img = imagesc(xx,yy,image_O15./comb_merged_no_int*factor);
+corr_img = imagesc(xx,yy,image_O15./combined_parall_int_ext);
 title('Corrected image of O15, file 1');
 axis square;
 axis xy;
@@ -297,14 +310,14 @@ ylabel(a,'Activity (Bq) per 2 mm bin','FontSize',10.45,'Rotation',270);
 subplot(3,2,4);
 hold on;
 plot(xx,rescale(image_O15(61,:)),'DisplayName','Slice of uncorrected 15O image, file 8');
-plot(xx,rescale(image_O15(61,:)./comb_merged_no_int(61,:)),'DisplayName','Slice of corrected 15O image, file 8');
+plot(xx,rescale(image_O15(61,:)./combined_parall_int_ext(61,:)),'DisplayName','Slice of corrected 15O image, file 8');
 hold off;
 xlabel('X (mm)');
 ylabel('Normalized counts (a.u.)');
 legend;
 
 subplot(3,2,5);
-corr_img = imagesc(xx,yy,image_O14./comb_merged_no_int*factor);
+corr_img = imagesc(xx,yy,image_O14./combined_parall_int_ext);
 title('Corrected image of O14, file 3');
 axis square;
 axis xy;
@@ -322,7 +335,7 @@ ylabel(a,'Activity (Bq) per 2 mm bin','FontSize',10.45,'Rotation',270);
 subplot(3,2,6);
 hold on;
 plot(xx,rescale(image_O14(61,:)),'DisplayName','Slice of uncorrected 14O image, file 16');
-plot(xx,rescale(image_O14(61,:)./comb_merged_no_int(61,:)),'DisplayName','Slice of corrected 14O image, file 16');
+plot(xx,rescale(image_O14(61,:)./combined_parall_int_ext(61,:)),'DisplayName','Slice of corrected 14O image, file 16');
 % file with image_O16 has length of 1800.01 seconds 
 hold off;
 xlabel('X (mm)');

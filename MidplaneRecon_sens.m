@@ -171,9 +171,22 @@ set(gca,'ColorScale','log');
 [max_row, max_col] = ind2sub(size(midplaneImage),index);
 proj2mm = midplaneImage(max_row,:); %if source is parallel to beam
 %proj2mm = midplaneImage(:,max_col) %if source is perpendicular to beam
- 
-subplot(2,2,2);
-plot(xrange,proj2mm);
+
+% so that projection doesn't contain complete zeros, this is anyway on the
+% edges of FOV
+for i = 1 : length(proj2mm)
+    if proj2mm(i) == 0
+        proj2mm(i) = 0.0001;
+    end
+end
+
+% writing 2mm n=binned projection into txt file
+% [path,name,ext] = fileparts(datafile_red);
+% filename = char(strcat(name,'_proj_2mm.txt'));
+% writematrix(proj2mm,filename);
+
+% subplot(2,2,2);
+% plot(xrange,proj2mm);
 % im_hist = histogram2(-imgy,imgx,'BinWidth',[2 2],'DisplayStyle','tile');
 % title(datafile_red,'Interpreter', 'none')
 % axis square;
@@ -186,23 +199,11 @@ plot(xrange,proj2mm);
 % xlabel('X (mm)');
 % ylabel('Y (mm)');
 
-% so that projection doesn't contain complete zeros, this is anyway on the
-% edges of FOV
-for i = 1 : length(proj2mm)
-    if proj2mm(i) == 0
-        proj2mm(i) = 0.0001;
-    end
-end
-
-% writing 2mm n=binned projection into txt file
-[path,name,ext] = fileparts(datafile_red);
-filename = char(strcat(name,'_proj_2mm.txt'));
-writematrix(proj2mm,filename);
-return;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %reconstructed 2d histogram with ~ 4 mm binning 
-subplot(2,2,2)
-im_hist = histogram2(-imgy,imgx,'BinWidth',[4 4],'DisplayStyle','tile');
+figure;
+subplot(1,2,1)
+im_hist = histogram2(-imgy,imgx,'BinWidth',[6 6],'DisplayStyle','tile');
 title(datafile_red,'Interpreter', 'none')
 axis square;
 edgesx = im_hist.XBinEdges;
@@ -210,21 +211,25 @@ edgesy = im_hist.YBinEdges;
 counts = im_hist.BinCounts;
 values = im_hist.Values;
 bin_width = im_hist.BinWidth;
-counts_proj_beam = sum(counts, 1);
+counts_proj_beam = sum(counts, 2);
+counts_slice_beam = counts(:,35);
 xlabel('X (mm)');
 ylabel('Y (mm)');
 
-subplot(2,2,4);
-plot(counts_proj_beam,'DisplayName','Projection');
+subplot(1,2,2);
 hold on;
-plot(smooth(counts_proj_beam,3),'DisplayName','Projection smoothed, span 3')
-plot(smooth(counts_proj_beam,5),'DisplayName','Projection smoothed, span 5')
+%plot(counts_proj_beam,'DisplayName','Projection');
+plot(counts_slice_beam,'DisplayName','Slice');
 hold off;
+% 
+% plot(smooth(counts_proj_beam,3),'DisplayName','Projection smoothed, span 3')
+% plot(smooth(counts_proj_beam,5),'DisplayName','Projection smoothed, span 5')
+% hold off;
 ax.XLim = [0,55];
 xlabel('Image plane bin number');
 ylabel('Counts per 4 mm bin');
 legend;
-
+return;
 % writing 4mm n=binned projection into txt file
 [path,name,ext] = fileparts(datafile_red);
 filename = char(strcat(name,'_proj.txt'));
