@@ -23,11 +23,14 @@ map = griddata(ar(:,1),ar(:,2),ar(:,4),xq,yq);
 
 %%% open images to be corrected
 % C10 achro
-fig_C10 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_002_red_image.fig','invisible');
+%fig_C10 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_002_red_image.fig','invisible');
+fig_C10 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_001_red_image.fig','invisible');
 arr_C10 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
-time_C10 = 2399.502; % file duration in [sec]
+%time_C10 = 2399.502; % file duration in [sec]
+time_C10 = 2399.578; % file duration in [sec]
 image_C10 = arr_C10/time_C10; % image in [counts/sec]
 corr_image_C10 = image_C10./map; % image in [kBq]
+total_C10 = sum(corr_image_C10*1000*time_C10,'all','omitnan')
 close all;
 
 % C11 
@@ -36,6 +39,7 @@ arr_C11 = get(get(gca,'Children'),'CData'); % getting data from figure as an arr
 time_C11 = 3600.073; % file duration in [sec]
 image_C11 = arr_C11/time_C11; % image in [counts/sec]
 corr_image_C11 = image_C11./map; % image in [kBq]
+total_C11 = sum(corr_image_C11*1000*time_C11,'all','omitnan')
 close all;
 %%
 h(1) = figure('Name','Sensitivity map for 10,11C','NumberTitle','off');
@@ -61,6 +65,7 @@ arr_C12 = get(get(gca,'Children'),'CData'); % getting data from figure as an arr
 time_C12 = 5399.904; % file duration in [sec]
 image_C12 = arr_C12/time_C12; % image in [counts/sec]
 corr_image_C12 = image_C12./map2; % image in [kBq]
+total_C12 = sum(corr_image_C12*1000*time_C12,'all','omitnan')
 
 
 h(2) = figure('Name','Sensitivity map for 12C','NumberTitle','off');
@@ -219,7 +224,7 @@ hold off;
 xlabel('Depth in PMMA (mm)');
 ylabel('Scaled (a.u.)');
 legend;
-
+return;
 %% saving all figures into single .fig
 savefig(h,'Q:\Documents\PET\MATLAB_figures_PET\Sens_corr_carbons_higher_energ.fig');
 close(h);

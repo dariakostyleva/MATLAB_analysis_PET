@@ -6,7 +6,7 @@
 % Resulting corrected images are in [kBq].
 %%%%
 
-
+br = 0.906; % branching ratio for positron emission of 22Na
 range = [-119:2:119];
 image_O15 = zeros(120,120);
 image_O14 = zeros(120,120);
@@ -20,15 +20,28 @@ load('sens_pin1_mod2.mat'); % with one row of extrap values
 % grid of query points for interpolation
 [xq,yq] = meshgrid(linspace(-119,119,120),linspace(-119,119,120));
 % ar(:,1) is x [mm], ar(:,2) is y [mm], ar(:,4) is sensitivity [counts/sec/kBq]
+%map = griddata(ar(:,1),ar(:,2),ar(:,4),xq,yq);
+ar(:,4) = ar(:,4)*10^(-3)/br;
 map = griddata(ar(:,1),ar(:,2),ar(:,4),xq,yq);
-
 %%% open images to be corrected
 % O15
 fig_O15 = openfig('Q:\Documents\PET\MATLAB_figures_PET\O15_008_red_image.fig','invisible');
 arr_O15 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 time_O15 = 1200.046; % file duration in [sec]
-image_O15 = arr_O15/time_O15; % image in [counts/sec]
-corr_image_O15 = image_O15./map; % image in [kBq]
+%image_O15 = arr_O15/time_O15; % image in [counts/sec]
+image_O15 = arr_O15; % image in [counts]
+%corr_image_O15 = image_O15./map; % image in [kBq]
+corr_image_O15 = image_O15./map; % image in [counts]
+%total_O15 = sum(corr_image_O15*1000*time_O15,'all','omitnan')
+total_O15 = sum(corr_image_O15,'all','omitnan')
+return;
+% error bar calculation
+err_counts_O15 = sqrt(arr_O15);
+err_time = 527*10^(-12); % time res of scanner, FWHM
+err_rate_O15 = sqrt(power(err_counts_O15./arr_O15,2) + power(err_time./time_O15,2))
+%err_map_O15
+%prof_err_O15 = sqrt(sum(err_O15.^2,1,'omitnan'));
+%
 close all;
 
 % O14
@@ -37,6 +50,7 @@ arr_O14 = get(get(gca,'Children'),'CData'); % getting data from figure as an arr
 time_O14 = 2343.966; % file duration in [sec]
 image_O14 = arr_O14/time_O14; % image in [counts/sec]
 corr_image_O14 = image_O14./map; % image in [kBq]
+total_O14 = sum(corr_image_O14*1000*time_O14,'all','omitnan')
 close all;
 
 % O16
@@ -45,8 +59,9 @@ arr_O16 = get(get(gca,'Children'),'CData'); % getting data from figure as an arr
 time_O16 = 1800.01; % file duration in [sec]
 image_O16 = arr_O16/time_O16; % image in [counts/sec]
 corr_image_O16 = image_O16./map; % image in [kBq]
+total_O16 = sum(corr_image_O16*1000*time_O16,'all','omitnan')
 close all;
-
+%return;
 
 %%
 % Start ploting
@@ -57,7 +72,8 @@ scatter3(ar(:,1),ar(:,2),ar(:,4),'MarkerFaceColor',[0 .75 .75]);
 hold off;
 xlabel('X (mm)');
 ylabel('Y (mm)');
-zlabel('Intensity (counts/sec/kBq)');
+%zlabel('Intensity (counts/sec/kBq)');
+zlabel('Sensitivity()');
 ax = gca;
 ax.FontSize = 14;
 title('Sensitivity map, PMMA starts at -35 mm in X','Interpreter', 'none');
@@ -205,7 +221,12 @@ hold off;
 xlabel('Depth in PMMA (mm)');
 ylabel('Scaled (a.u.)');
 legend;
+%%
+figure;
+errorbar([-84:2:155],sum(corr_image_O15(50:70,:)),sqrt(sum(err_O15(50:70,:).^2,1,'omitnan')),'o','DisplayName','O15 corrected, central slice 40 mm');
 
+
+return;
 %% saving all figures into single .fig
 savefig(h,'Q:\Documents\PET\MATLAB_figures_PET\Sens_corr_oxygens_lower_energ.fig');
 close(h);

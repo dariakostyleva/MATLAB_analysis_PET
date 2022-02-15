@@ -1,16 +1,11 @@
-%%% Pin 1_1 is PMMA position 200.7 mm from braket for Carbon lower energ with 39 mm range %%%
-% This script: 
-% 1. loads the evaluated point source data for specific PMMA position
-% 2. performs interpolation thus makes abs sensitivity map [dimentionless]
-% 3. divides image [counts] by the abs sensitivity map
-% 4. Resulting corrected images are in [counts].
-%%%%
+%%% This script compares mono and achro modes of FRS
+%%% PMMA position is 200.7 mm from braket for Carbon lower energ with 39 mm range %%%
 
 br = 0.906; % branching ratio for positron emission of 22Na
-range = [-119:2:119];
-image_C10 = zeros(120,120);
-image_C11 = zeros(120,120);
-image_C12 = zeros(120,120);
+range = [-119:2:119];    % scaling for 0,0 at FOV middle
+depth = [-79.7:2:159.3]; % scaling for depth in PMMA
+image_C10_a = zeros(120,120);
+image_C10_m = zeros(120,120);
 
 %%% Load the point source data
 %load('sens_pin1_1.mat');
@@ -25,35 +20,24 @@ map = griddata(ar(:,1),ar(:,2),ar(:,4),xq,yq); % map is dimensionless
 
 %%% open images to be corrected
 % C10 achro
-fig_C10 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_014_red_image.fig','invisible');
-arr_C10 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
-time_C10 = 1200.035; % file duration in [sec]
+fig_C10_a = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_014_red_image.fig','invisible');
+arr_C10_a = get(get(gca,'Children'),'CData'); % getting data from figure as an array
+time_C10_a = 1200.035; % file duration in [sec]
 %image_C10 = arr_C10/time_C10; % image in [counts/sec]
-image_C10 = arr_C10; % image in [counts]
-corr_image_C10 = image_C10./map; % image in [counts]
-total_C10 = sum(corr_image_C10,'all','omitnan')
+image_C10_a = arr_C10_a; % image in [counts]
+corr_image_C10_a = image_C10_a./map; % image in [counts]
+total_C10_a = sum(corr_image_C10_a,'all','omitnan')
 close all;
 
-% C11 MONO!
-openfig('Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_image.fig','invisible');
-arr_C11 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
-time_C11 = 3600.077; % file duration in [sec]
-%image_C11 = arr_C11/time_C11; % image in [counts/sec]
-image_C11 = arr_C11; % image in [counts]
-corr_image_C11 = image_C11./map; % image in [counts]
-total_C11 = sum(corr_image_C11,'all','omitnan')
+% C10 achro
+fig_C10_m = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_015_red_image.fig','invisible');
+arr_C10_m = get(get(gca,'Children'),'CData'); % getting data from figure as an array
+time_C10_m = 1199.94; % file duration in [sec]
+%image_C10 = arr_C10/time_C10; % image in [counts/sec]
+image_C10_m = arr_C10_m; % image in [counts]
+corr_image_C10_m = image_C10_m./map; % image in [counts]
+total_C10_m = sum(corr_image_C10_m,'all','omitnan')
 close all;
-
-% C12 achro
-fig_C12 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C12_017_red_image.fig','invisible');
-arr_C12 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
-time_C12 = 3599.567; % file duration in [sec]
-%image_C12 = arr_C12/time_C12; % image in [counts/sec]
-image_C12 = arr_C12; % image in [counts]
-corr_image_C12 = image_C12./map; % image in [counts]
-total_C12 = sum(corr_image_C12,'all','omitnan')
-close all;
-
 
 %%
 % Start ploting
@@ -70,94 +54,85 @@ ax.FontSize = 14;
 title('Sensitivity map, PMMA starts at -39.3 mm in X','Interpreter', 'none');
 
 %%
-h(2) = figure('Name','Original vs corrected images','NumberTitle','off');
-sgtitle('Original vs corrected images','Interpreter', 'none');
-subplot(3,2,1);
-imagesc(range,range,image_C10);
-bar = colorbar;
-bar.Label.String = 'Intensity (counts)';
-title('image_C10','Interpreter', 'none');
-xlabel('X (mm)');
-ylabel('Y (mm)');
-set(gca,'ColorScale','log');
-%
-subplot(3,2,2);
-corr_image = imagesc(range,range,corr_image_C10);
-xlabel('X (mm)');
-ylabel('Y (mm)');
-title('corr_image_C10','Interpreter', 'none');
-set(gca,'ColorScale','log');
-bar = colorbar;
-bar.Label.String = 'Intensity (counts)';
-%
-subplot(3,2,3);
-imagesc(range,range,image_C11);
-xlabel('X (mm)');
-ylabel('Y (mm)');
-title('image_C11','Interpreter', 'none');
-set(gca,'ColorScale','log');
-bar = colorbar;
-bar.Label.String = 'Intensity (counts)';
-%
-subplot(3,2,4);
-corr_image = imagesc(range,range,corr_image_C11);
-xlabel('X (mm)');
-ylabel('Y (mm)');
-title('corr_image_C11','Interpreter', 'none');
-set(gca,'ColorScale','log');
-bar = colorbar;
-bar.Label.String = 'Intensity (counts)';
-%
-subplot(3,2,5);
-imagesc(range,range,image_C12);
-xlabel('X (mm)');
-ylabel('Y (mm)');
-title('image_C12','Interpreter', 'none');
-set(gca,'ColorScale','log');
-bar = colorbar;
-bar.Label.String = 'Intensity (counts)';
-%
-subplot(3,2,6);
-corr_image = imagesc(range,range,corr_image_C12);
-xlabel('X (mm)');
-ylabel('Y (mm)');
-title('corr_image_C12','Interpreter', 'none');
-set(gca,'ColorScale','log');
-bar = colorbar;
-bar.Label.String = 'Intensity (counts)';
+h(2) = figure('Name','Corrected images','NumberTitle','off');
 
+subplot(1,2,1);
+corr_image = imagesc(range,range,corr_image_C10_a);
+xlabel('X (mm)');
+ylabel('Y (mm)');
+title('corr_image_C10_achro','Interpreter', 'none');
+set(gca,'ColorScale','log');
+bar = colorbar;
+bar.Label.String = 'Intensity (counts)';
+axis square;
+axis xy;
+ax = gca;
+ax.FontSize = 30;
+ax.XLim = [-100,100];
+ax.YLim = [-100,100];
+xticks([-120:20:120]);
+yticks([-120:20:120]);
+ax.TickDir = 'out';
+ax.TickLength = [0.02 0.02];
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+ax.GridLineStyle = '--';
+ax.GridAlphaMode = 'manual';
+ax.GridAlpha = 0.5;
+ax.GridColorMode = 'manual';
+ax.GridColor = 'white';
+
+%
+subplot(1,2,2);
+corr_image = imagesc(range,range,corr_image_C10_m);
+xlabel('X (mm)');
+ylabel('Y (mm)');
+title('corr_image_C10_mono','Interpreter', 'none');
+set(gca,'ColorScale','log');
+bar = colorbar;
+bar.Label.String = 'Intensity (counts)';
+axis square;
+axis xy;
+ax = gca;
+ax.FontSize = 30;
+ax.XLim = [-100,100];
+ax.YLim = [-100,100];
+xticks([-120:20:120]);
+yticks([-120:20:120]);
+ax.TickDir = 'out';
+ax.TickLength = [0.02 0.02];
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+ax.GridLineStyle = '--';
+ax.GridAlphaMode = 'manual';
+ax.GridAlpha = 0.5;
+ax.GridColorMode = 'manual';
+ax.GridColor = 'white';
+
+return;
 %%
 h(3) = figure('Name','Sciles of original vs corrected images','NumberTitle','off');
-subplot(3,1,1);
+subplot(2,1,1);
 title('Comparison of slices along beam C10');
 hold on;
-plot(range,rescale(sum(corr_image_C10(50:70,:))),'DisplayName','C10 corrected, central slice 40 mm');
-plot(range,rescale(sum(image_C10(50:70,:))),'DisplayName','C10 orig, central slice 40 mm');
+%plot([-79.7:2:159.3],rescale(sum(corr_image_C10_a(50:70,:))),'DisplayName','C10 corrected, central slice 40 mm, achro');
+plot([-79.7:2:159.3],rescale(sum(corr_image_C10_a(55:75,:))),'DisplayName','C10 corrected, central slice 40 mm, achro');
+plot([-79.7:2:159.3],rescale(sum(corr_image_C10_m(40:80,:))),'DisplayName','C10 corrected, central slice 40 mm, mono');
 hold off;
-xlabel('X (mm)');
-ylabel('Intensity (a.u.)');
+xlabel('Depth in PMMA (mm)');
+ylabel('Intensity (counts)');
 legend;
-%
-subplot(3,1,2);
-title('Comparison of slices along beam C11');
-hold on;
-plot(range,rescale(sum(corr_image_C11(50:70,:))),'DisplayName','C11 corrected, central slice 40 mm');
-plot(range,rescale(sum(image_C11(50:70,:))),'DisplayName','C11 orig, central slice 40 mm');
-hold off;
-xlabel('X (mm)');
-ylabel('Intensity (a.u.)');
-legend;
-%
-subplot(3,1,3);
-title('Comparison of slices along beam C12');
-hold on;
-plot(range,rescale(sum(corr_image_C12(50:70,:))),'DisplayName','C12 corrected, central slice 40 mm');
-plot(range,rescale(sum(image_C12(50:70,:))),'DisplayName','C12 orig, central slice 40 mm');
-hold off;
-xlabel('X (mm)');
-ylabel('Intensity (a.u.)');
-legend; 
 
+subplot(2,1,2);
+title('Comparison of slices perpendicular beam C10');
+hold on;
+plot(range,rescale(sum(corr_image_C10_a(:,60:80),2)),'DisplayName','C10 corrected, slice 40 mm, achro');
+plot(range,rescale(sum(corr_image_C10_m(:,60:80),2)),'DisplayName','C10 corrected, slice 40 mm, mono');
+hold off;
+xlabel('X (mm)');
+ylabel('Intensity (a.u.)');
+legend;
+return;
 %%
 h(4) = figure('Name','Sciles of original vs corrected images','NumberTitle','off');
 subplot(3,1,1);

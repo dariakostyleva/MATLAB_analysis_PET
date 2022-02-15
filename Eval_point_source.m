@@ -25,7 +25,7 @@ y = load(bgrawname);
 prompts = y.y;
 clear y; 
 size_Z=size(prompts); % size of matrix, number of events = size_Z(1), size_Z(2)=10 (10 columns)
-t_bg = prompts(size_Z(1)-1,9)*0.001;
+t_bg = prompts(size_Z(1)-1,9)*0.001; % duration of bg file in (sec)
 clear prompts;
 
 z = load(bgredname);
@@ -64,7 +64,7 @@ for i = file_num_i:file_num_f
         % sensitivity
         sens = rate_c/activity;  % [counts/sec/kBq]
         abs_sens = sens*10^(-3)/br*100; % [%]
-
+ 
         % load image and get coordinates of peak
         openfig(imname,'invisible');
         im = get(get(gca,'Children'),'CData');   

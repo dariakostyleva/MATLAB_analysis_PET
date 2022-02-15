@@ -28,6 +28,7 @@ arr_O15 = get(get(gca,'Children'),'CData'); % getting data from figure as an arr
 time_O15 = 900.522; % file duration in [sec]
 image_O15 = arr_O15/time_O15; % image in [counts/sec]
 corr_image_O15 = image_O15./map; % image in [kBq]
+total_O15 = sum(corr_image_O15*1000*time_O15,'all','omitnan')
 close all;
 
 % O14
@@ -36,6 +37,7 @@ arr_O14 = get(get(gca,'Children'),'CData'); % getting data from figure as an arr
 time_O14 = 2399.902; % file duration in [sec]
 image_O14 = arr_O14/time_O14; % image in [counts/sec]
 corr_image_O14 = image_O14./map; % image in [kBq]
+total_O14 = sum(corr_image_O14*1000*time_O14,'all','omitnan')
 close all;
 
 % O16
@@ -44,6 +46,7 @@ arr_O16 = get(get(gca,'Children'),'CData'); % getting data from figure as an arr
 time_O16 = 3000.559; % file duration in [sec]
 image_O16 = arr_O16/time_O16; % image in [counts/sec]
 corr_image_O16 = image_O16./map; % image in [kBq]
+total_O16 = sum(corr_image_O16*1000*time_O16,'all','omitnan')
 close all;
 
 
@@ -204,6 +207,7 @@ hold off;
 xlabel('Depth in PMMA (mm)');
 ylabel('Scaled (a.u.)');
 legend;
+
 
 %% saving all figures into single .fig
 savefig(h,'Q:\Documents\PET\MATLAB_figures_PET\Sens_corr_oxygens_higher_energ.fig');
