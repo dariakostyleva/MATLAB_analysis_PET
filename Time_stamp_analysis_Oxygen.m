@@ -1,5 +1,11 @@
 %datafile_red = load()
 
+%%%%
+%%%% Change loop such that it compares PET ts with FRS ts with counts in IC
+%%%% histogram for that ts. If IC counts > 0 in the bin corresp to time stamp, 
+%%%% then event is removed.
+%%%% 
+
 %z16=load('D:\PET_data_June_2021\O16_005_red.mat');
 %z14=load('D:\PET_data_June_2021\O14_003_red.mat');
 %z15=load('D:\PET_data_June_2021\O15_002_red.mat');

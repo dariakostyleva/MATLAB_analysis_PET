@@ -6,22 +6,35 @@
 % 4. Resulting corrected images are in [counts].
 %%%%
 
-br = 0.906; % branching ratio for positron emission of 22Na
+%%% 22Na source info 
+% from literature its branching ratio is 90.30(9) percent
+br = 0.9030; 
+e_br = 0.0009;
+%
+depth_pmma = [-79.7:2:159.3]; % scale for x axis in mm
 range = [-119:2:119];
 image_C10 = zeros(120,120);
 image_C11 = zeros(120,120);
 image_C12 = zeros(120,120);
+err_map = zeros(120,120);
+
 
 %%% Load the point source data
-%load('sens_pin1_1.mat');
 load('sens_pin1_1_mod.mat'); % with one row of extrap values
+% inside:
+%        ar(:,1)  x [mm], 
+%        ar(:,2)  y [mm], 
+%        ar(:,4)  sensitivity [counts/sec/kBq]
+%        ar(:,7)  abs error on sensitivity [counts/sec/kBq]
 
 %%% Interpolate
 % grid of query points for interpolation
 [xq,yq] = meshgrid(linspace(-119,119,120),linspace(-119,119,120));
-% ar(:,1) is x [mm], ar(:,2) is y [mm], ar(:,4) is sensitivity [counts/sec/kBq]
-ar(:,4) = ar(:,4)*10^(-3)/br; % absolute sensitivity incl br correction
+ar(:,4) = ar(:,4)*10^(-3)/br; % making sensitivity dimensionless plus corr on br ratio
+ar(:,7) = sqrt(ar(:,7).^2 + e_br^2)*10^(-3); % making abs error on sensitivity dimensionless plus corr on br ratio
+%err_map = max(ar(:,7));
 map = griddata(ar(:,1),ar(:,2),ar(:,4),xq,yq); % map is dimensionless
+%err_map = griddata(ar(:,1),ar(:,2),ar(:,7),xq,yq); % abs error bar map is dimensionless 
 
 %%% open images to be corrected
 % C10 achro
@@ -32,16 +45,20 @@ time_C10 = 1200.035; % file duration in [sec]
 image_C10 = arr_C10; % image in [counts]
 corr_image_C10 = image_C10./map; % image in [counts]
 total_C10 = sum(corr_image_C10,'all','omitnan')
+cimage_C10 = imagesc(range,range,corr_image_C10)
+%saveas(cimage_C10, 'Q:\Documents\PET\MATLAB_figures_PET\C10_014_red_image_corr.fig');
 close all;
 
 % C11 MONO!
-openfig('Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_image.fig','invisible');
+openfig('Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_spillon_image.fig','invisible');
 arr_C11 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 time_C11 = 3600.077; % file duration in [sec]
 %image_C11 = arr_C11/time_C11; % image in [counts/sec]
 image_C11 = arr_C11; % image in [counts]
 corr_image_C11 = image_C11./map; % image in [counts]
 total_C11 = sum(corr_image_C11,'all','omitnan')
+cimage_C11 = imagesc(range,range,corr_image_C11)
+%saveas(cimage_C11, 'Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_spillon_image_corr.fig');
 close all;
 
 % C12 achro
@@ -52,11 +69,54 @@ time_C12 = 3599.567; % file duration in [sec]
 image_C12 = arr_C12; % image in [counts]
 corr_image_C12 = image_C12./map; % image in [counts]
 total_C12 = sum(corr_image_C12,'all','omitnan')
+cimage_C12 = imagesc(range,range,corr_image_C12)
+%saveas(cimage_C12,'Q:\Documents\PET\MATLAB_figures_PET\C12_017_red_image_corr.fig');
 close all;
+
+
+%% ERROR calculation and propagation
+
+err_counts_C10 = sqrt(arr_C10);
+err_counts_C11 = sqrt(arr_C11);
+err_counts_C12 = sqrt(arr_C12);
+% if adding systematic error coming from source measurements
+%err_image_C10 = sqrt( power(err_map./map,2) + power(err_counts_C10./arr_C10,2) ).*corr_image_C10;
+%err_image_C11 = sqrt( power(err_map./map,2) + power(err_counts_C11./arr_C11,2) ).*corr_image_C11;
+%err_image_C12 = sqrt( power(err_map./map,2) + power(err_counts_C12./arr_C12,2) ).*corr_image_C12;
+% if only statistical error is included
+err_image_C10 = err_counts_C10./map;
+err_image_C11 = err_counts_C11./map;
+err_image_C12 = err_counts_C12./map;
 
 
 %%
 % Start ploting
+
+%plotting errors
+figure;
+subplot(3,1,1);
+errorbar(depth_pmma,sum(corr_image_C10(50:70,:)),sqrt(sum(power(err_image_C10(50:70,:),2),1,'omitnan')),'DisplayName','C10 corr, stat errors, central slice 40 mm');
+xlabel('Depth in PMMA (mm)');
+ylabel('Intensity (counts)');
+legend;
+subplot(3,1,2);
+errorbar(depth_pmma,sum(corr_image_C11(50:70,:)),sqrt(sum(power(err_image_C11(50:70,:),2),1,'omitnan')),'DisplayName','C11 corr, stat errors, central slice 40 mm');
+xlabel('Depth in PMMA (mm)');
+ylabel('Intensity (counts)');
+legend;
+subplot(3,1,3);
+errorbar(depth_pmma,sum(corr_image_C12(50:70,:)),sqrt(sum(power(err_image_C12(50:70,:),2),1,'omitnan')),'DisplayName','C12 corr, stat errors, central slice 40 mm');
+xlabel('Depth in PMMA (mm)');
+ylabel('Intensity (counts)');
+legend;
+return;
+C10_data = [depth_pmma',sum(corr_image_C10(50:70,:))',sqrt(sum(power(err_image_C10(50:70,:),2),1,'omitnan'))'];
+writematrix(C10_data,'C10_lower_en_peak_corr_no_syst.csv');
+C12_data = [depth_pmma',sum(corr_image_C12(50:70,:))',sqrt(sum(power(err_image_C12(50:70,:),2),1,'omitnan'))'];
+writematrix(C12_data,'C12_lower_en_peak_corr.csv');
+C11_data = [depth_pmma',sum(corr_image_C11(50:70,:))',sqrt(sum(power(err_image_C11(50:70,:),2),1,'omitnan'))'];
+writematrix(C11_data,'C11_lower_en_peak_corr.csv');
+return;
 h(1) = figure('Name','Sensitivity map','NumberTitle','off');
 mesh(xq,yq,map);
 hold on;
@@ -195,9 +255,9 @@ h(5) = figure;
 sgtitle('Expected range ~39 mm range of carbons, achro mode of FRS for 10,12C, mono for 11C');
 subplot(2,1,1);
 hold on;
-plot([-79.7:2:159.3],sum(corr_image_C10(50:70,:)),'DisplayName','C10 corrected, central slice 40 mm');
-plot([-79.7:2:159.3],sum(corr_image_C11(50:70,:)),'DisplayName','C11 corrected, central slice 40 mm');
-plot([-79.7:2:159.3],sum(corr_image_C12(50:70,:)),'DisplayName','C12 corrected, central slice 40 mm');
+plot(depth_pmma,sum(corr_image_C10(50:70,:)),'DisplayName','C10 corrected, central slice 40 mm');
+plot(depth_pmma,sum(corr_image_C11(50:70,:)),'DisplayName','C11 corrected, central slice 40 mm');
+plot(depth_pmma,sum(corr_image_C12(50:70,:)),'DisplayName','C12 corrected, central slice 40 mm');
 hold off;
 xlabel('Depth in PMMA (mm)');
 ylabel('Intensity (counts)');
@@ -205,9 +265,9 @@ legend;
 %
 subplot(2,1,2);
 hold on;
-plot([-79.7:2:159.3],rescale(sum(corr_image_C10(50:70,:))),'DisplayName','C10 corrected, central slice 40 mm');
-plot([-79.7:2:159.3],rescale(sum(corr_image_C11(50:70,:))),'DisplayName','C11 corrected, central slice 40 mm');
-plot([-79.7:2:159.3],rescale(sum(corr_image_C12(50:70,:))),'DisplayName','C12 corrected, central slice 40 mm');
+plot(depth_pmma,rescale(sum(corr_image_C10(50:70,:))),'DisplayName','C10 corrected, central slice 40 mm');
+plot(depth_pmma,rescale(sum(corr_image_C11(50:70,:))),'DisplayName','C11 corrected, central slice 40 mm');
+plot(depth_pmma,rescale(sum(corr_image_C12(50:70,:))),'DisplayName','C12 corrected, central slice 40 mm');
 hold off;
 xlabel('Depth in PMMA (mm)');
 ylabel('Scaled (a.u.)');
