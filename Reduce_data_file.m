@@ -23,4 +23,4 @@ size_Z=size(z); % size of matrix, number of events = size_Z(1), size_Z(2)=6 (6 c
 %saving the file
 [filepath,name,ext] = fileparts(datafilename); %separates path, name and extension of the file
 save(char(strcat('D:\PET_data_June_2021\',name,'_red.mat')),'z','-v7.3'); % OVERWRITES EXISTING FILE !
-clear z;
+%clear z;

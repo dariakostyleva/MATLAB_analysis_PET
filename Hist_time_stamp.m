@@ -5,14 +5,20 @@ z3=load('D:\PET_data_Feb_2021\C10_014_red.mat');
 z4=load('D:\PET_data_June_2021\C12_018_red.mat');
 z5=load('D:\PET_data_Feb_2021\C11_007_red.mat');
 z6=load('D:\PET_data_Feb_2021\C10_001_red.mat');
+z7=load('D:\PET_data_Feb_2021\C10_003_red.mat');
+z8=load('D:\PET_data_Feb_2021\C11_008_red.mat');
 events1=z1.z; events2=z2.z; events3=z3.z; events4=z4.z; events5=z5.z; events6=z6.z;
+events7=z7.z; events8=z8.z;
 nevents1 = length(events1); nevents2 = length(events2); nevents3 = length(events3);
 nevents4 = length(events4); nevents5 = length(events5); nevents6 = length(events6);
+nevents7 = length(events7); nevents8 = length(events8);
 tt1 = events1(nevents1-1,6); tt2 = events2(nevents1-1,6); tt3 = events3(nevents3-1,6);
 tt4 = events4(nevents4-1,6); tt5 = events5(nevents5-1,6); tt6 = events6(nevents6-1,6);
+tt7 = events7(nevents7-1,6); tt8 = events8(nevents8-1,6);
 bins = 100;
 binning1 = round(tt1/bins); binning2 = round(tt2/bins); binning3 = round(tt3/bins);
 binning4 = round(tt4/bins); binning5 = round(tt5/bins); binning6 = round(tt6/bins);
+binning7 = round(tt7/bins); binning8 = round(tt8/bins);
 ifc_hist1 = load("hist_0259_C12_017_100msec_bins.txt");
 ifc_hist2 = load("hist_0248_C11_012_100msec_bins.txt");
 ifc_hist3 = load("hist_0255_C10_014_100msec_bins.txt");
@@ -62,3 +68,13 @@ l = legend; set(l, 'Interpreter', 'none');
 subplot(6,2,12);
 stairs(ifc_hist6(:,1),ifc_hist6(:,2),'DisplayName','hist_0219_C10_001_100msec_bins');
 l = legend; set(l, 'Interpreter', 'none');
+
+figure;
+subplot(2,1,1);
+h7 = histogram(events7(:,6),binning7,'DisplayStyle','stairs','DisplayName','C10_003_red');
+l = legend; set(l, 'Interpreter', 'none');
+
+subplot(2,1,2);
+h8 = histogram(events8(:,6),binning8,'DisplayStyle','stairs','DisplayName','C11_008_red');
+l = legend; set(l, 'Interpreter', 'none');
+

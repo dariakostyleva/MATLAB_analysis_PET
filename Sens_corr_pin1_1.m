@@ -1,46 +1,77 @@
 %%% Pin 1_1 is PMMA position 200.7 mm from braket for Carbon lower energ with 39 mm range %%%
 % This script: 
-% 1. loads the evaluated point source data for specific PMMA position
-% 2. performs interpolation thus makes abs sensitivity map [dimentionless]
-% 3. divides image [counts] by the abs sensitivity map
-% 4. Resulting corrected images are in [counts].
+% 1. divides image [counts] by the abs sensitivity map [dimensionless]
+% 2. Resulting corrected images are in [counts].
+% 3. Errors of image are sqrt(counts)/map
 %%%%
+
+range = [-119:2:119];
+%%% Load the sensitivity map
+map = load('sens_corr_map_pin_1_1.mat'); % map is dimensionless
+map = map.map;
+filepath = 'Q:\Documents\PET\MATLAB_figures_PET\C12_017_figs\';  
+%name = 'C10_014_red_image_4c'; 
+%name = 'C11_012_red_spillon_image_4c'; 
+name = 'C12_017_red_image_70c'; 
+ext = '.fig';
+fig_image_name = append(filepath,name,ext);
+openfig(fig_image_name,'invisible');
+image = get(get(gca,'Children'),'CData'); % getting data from figure as an array, in [counts]
+corr_image = image./map; % corrected image in [counts]
+fprintf('In file %s \n there are %d decays \n',fig_image_name,sum(corr_image,'all','omitnan'));
+cimage = imagesc(range,range,corr_image);
+figname = strcat(filepath,name,'_corr.fig');
+saveas(cimage, figname);
+err_counts = sqrt(image);
+err_image = err_counts./map;
+cerr = imagesc(range,range,err_image);
+figname_err = strcat(filepath,name,'_corr_err.fig');
+saveas(cerr, figname_err);
+
+return;
+
+depth_pmma = [-79.7:2:159.3]; % scale for x axis in mm
+image_C10 = zeros(120,120);
+image_C11 = zeros(120,120);
+image_C12 = zeros(120,120);
 
 %%% 22Na source info 
 % from literature its branching ratio is 90.30(9) percent
 br = 0.9030; 
 e_br = 0.0009;
-%
-depth_pmma = [-79.7:2:159.3]; % scale for x axis in mm
-range = [-119:2:119];
-image_C10 = zeros(120,120);
-image_C11 = zeros(120,120);
-image_C12 = zeros(120,120);
-err_map = zeros(120,120);
-
-
-%%% Load the point source data
-load('sens_pin1_1_mod.mat'); % with one row of extrap values
-% inside:
-%        ar(:,1)  x [mm], 
-%        ar(:,2)  y [mm], 
-%        ar(:,4)  sensitivity [counts/sec/kBq]
-%        ar(:,7)  abs error on sensitivity [counts/sec/kBq]
 
 %%% Interpolate
-% grid of query points for interpolation
-[xq,yq] = meshgrid(linspace(-119,119,120),linspace(-119,119,120));
-ar(:,4) = ar(:,4)*10^(-3)/br; % making sensitivity dimensionless plus corr on br ratio
-ar(:,7) = sqrt(ar(:,7).^2 + e_br^2)*10^(-3); % making abs error on sensitivity dimensionless plus corr on br ratio
-%err_map = max(ar(:,7));
-map = griddata(ar(:,1),ar(:,2),ar(:,4),xq,yq); % map is dimensionless
-%err_map = griddata(ar(:,1),ar(:,2),ar(:,7),xq,yq); % abs error bar map is dimensionless 
+% % grid of query points for interpolation
+% [xq,yq] = meshgrid(linspace(-119,119,120),linspace(-119,119,120));
+% pin1_1.ar(:,4) = pin1_1.ar(:,4)*10^(-3)/br; % making sensitivity dimensionless plus corr on br ratio
+% pin1_1.ar(:,7) = sqrt(pin1_1.ar(:,7).^2 + e_br^2)*10^(-3); % making abs error on sensitivity dimensionless plus corr on br ratio
+% %err_map = max(ar(:,7));
+% map = griddata(pin1_1.ar(:,1),pin1_1.ar(:,2),pin1_1.ar(:,4),xq,yq); % map is dimensionless
+% %err_map = griddata(pin1_1.ar(:,1),pin1_1.ar(:,2),pin1_1.ar(:,7),xq,yq); % abs error bar map is dimensionless 
+
+% C11 MONO spill off 
+fig_C11 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_spilloff_image_10sec.fig','invisible');
+%time_C11 = 3600.077; % file duration in [sec]
+%image_C11 = arr_C11/time_C11; % image in [counts/sec]
+arr_C11 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
+image_C11 = arr_C11; % image in [counts]
+corr_image_C11 = image_C11./map; % image in [counts]
+total_C11 = sum(corr_image_C11,'all','omitnan')
+cimage_C11 = imagesc(range,range,corr_image_C11)
+saveas(cimage_C11, 'Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_spilloff_image_10sec_corr.fig');
+close all;
+err_counts_C11 = sqrt(arr_C11);
+err_image_C11 = err_counts_C11./map;
+cerr_C11 = imagesc(range,range,err_image_C11);
+saveas(cerr_C11, 'Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_spilloff_image_10sec_corr_err.fig');
+return;
 
 %%% open images to be corrected
-% C10 achro
-fig_C10 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_014_red_image.fig','invisible');
+% C10 achro spill off 
+%fig_C10 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_014_red_image.fig','invisible');
+fig_C10 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C10_014_red_spilloff_image.fig','invisible');
 arr_C10 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
-time_C10 = 1200.035; % file duration in [sec]
+%time_C10 = 1200.035; % file duration in [sec]
 %image_C10 = arr_C10/time_C10; % image in [counts/sec]
 image_C10 = arr_C10; % image in [counts]
 corr_image_C10 = image_C10./map; % image in [counts]
@@ -49,23 +80,12 @@ cimage_C10 = imagesc(range,range,corr_image_C10)
 %saveas(cimage_C10, 'Q:\Documents\PET\MATLAB_figures_PET\C10_014_red_image_corr.fig');
 close all;
 
-% C11 MONO!
-openfig('Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_spillon_image.fig','invisible');
-arr_C11 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
-time_C11 = 3600.077; % file duration in [sec]
-%image_C11 = arr_C11/time_C11; % image in [counts/sec]
-image_C11 = arr_C11; % image in [counts]
-corr_image_C11 = image_C11./map; % image in [counts]
-total_C11 = sum(corr_image_C11,'all','omitnan')
-cimage_C11 = imagesc(range,range,corr_image_C11)
-%saveas(cimage_C11, 'Q:\Documents\PET\MATLAB_figures_PET\C11_012_red_spillon_image_corr.fig');
-close all;
-
-% C12 achro
-fig_C12 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C12_017_red_image.fig','invisible');
-arr_C12 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
-time_C12 = 3599.567; % file duration in [sec]
+% C12 achro spill off
+fig_C12 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C12_017_red_spilloff_image.fig','invisible');
+%fig_C12 = openfig('Q:\Documents\PET\MATLAB_figures_PET\C12_017_red_image.fig','invisible');
+%time_C12 = 3599.567; % file duration in [sec]
 %image_C12 = arr_C12/time_C12; % image in [counts/sec]
+arr_C12 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 image_C12 = arr_C12; % image in [counts]
 corr_image_C12 = image_C12./map; % image in [counts]
 total_C12 = sum(corr_image_C12,'all','omitnan')

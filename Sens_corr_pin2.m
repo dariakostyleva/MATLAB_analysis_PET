@@ -208,12 +208,12 @@ xlabel('Depth in PMMA (mm)');
 ylabel('Scaled (a.u.)');
 legend;
 
-
+return;
 %% saving all figures into single .fig
 savefig(h,'Q:\Documents\PET\MATLAB_figures_PET\Sens_corr_oxygens_higher_energ.fig');
 close(h);
 
-return;
+
 %% DEBUG
 mesh(xq,yq,corr_image_O15)
 xlabel('X (mm)');

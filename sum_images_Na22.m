@@ -2,9 +2,13 @@
 % and add matrixes together
 % PMMA position is pin 1
 %v=[2 17 32 47 62 77 92 107 122 137 146 153 168 183];
-v=[296];
+v=[146]; % file numbers to exclude
+file_num_i = 2;
+file_num_f = 197;
+file_num_t = file_num_f-file_num_i+1;
+fprintf('Number of files to sum: %d\n',file_num_t);
 sum_Image=zeros(120,120); % matrix of zeros
-for i=545:726
+for i=file_num_i:file_num_f
 %for i=198:262
     p=sum(i==v);
     if p == 0 
@@ -18,7 +22,7 @@ end
 openfig('Q:\Documents\PET\MATLAB_figures_PET\Na22\Na22_sens_0544_red_image.fig','invisible');
 bg=get(get(gca,'Children'),'CData');
 
-sum_Image = sum_Image-182*bg;
+sum_Image = sum_Image-file_num_t*bg;
 
 figure('Name','Reconstruction, 2d image','NumberTitle','off');
 subplot(2,2,1);

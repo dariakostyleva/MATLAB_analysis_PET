@@ -10,7 +10,8 @@ y=load(datafile)
 z=y.y;
 clear y; 
 size_Z=size(z); % size of matrix, number of events = size_Z(1), size_Z(2)=10 (10 columns)
-%DataAcquisitionTime=strcat(num2str(z(10^7-1,9)*0.001),'s')
+%DataAcquisitionTime=strcat(num2str(z(10^7-1,9)*0.001),'s') %
+% -1 is to get time of one to last event because time of the last event is zero (error)
 DataAcquisitionTime=strcat(num2str(z(size_Z(1)-1,9)*0.001),'s')
 NumberOfEvents=size_Z(1)
 A=sum(z,1); % sums matrix z over the first dimension, so sum over columns

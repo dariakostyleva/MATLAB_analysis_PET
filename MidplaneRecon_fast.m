@@ -17,6 +17,9 @@ intermoduleOffset = 252+2*DOI; % assumes flat panels
 pixelsize = 2;   % image pixels size in mm
 midplaneImage = zeros(104,104);
 
+imgx=zeros(1,nevents); % array to store x coord of midplane for 2D hist
+imgy=zeros(1,nevents); % array to store y coord of midplane for 2D hist
+
 % The line below makes a matrix to store the (x,y,z) coordinates of endpoints of the LoRs
 % lor=zeros(nevents,6);    
 % stores the coordinates of the ends of the LoRs
@@ -54,6 +57,9 @@ midplanePixely=103-floor(midplaneCrossingy/pixelsize)+1;
 
 midplaneImage(midplanePixelx,midplanePixely) = midplaneImage(midplanePixelx,midplanePixely)+1;
 
+imgx(n) = midplaneCrossingx; % for 2d histo
+imgy(n) = midplaneCrossingy; % for 2d histo
+
 end
 
 figure('Name','Midplane reconstruction','NumberTitle','off'); 
@@ -86,6 +92,36 @@ colorbar
 % stop time counter
 toc;
 
+%***** 2D histogram, uncomment if needed ********
+figure('Name','Reconstruction, 2d histo','NumberTitle','off'); % create figure
+set(gcf,'position',[100,300,1100,550]) % set dimentions to fit the screen
+im_hist = histogram2(-imgy,imgx,[52 52],'DisplayStyle','tile');
+title('2D histogram') 
+colorbar;
+colormap(parula);
+xlabel('X (mm)');
+ylabel('Y (mm)');
+set(gca,'ColorScale','log');
+axis square;
+axis xy;
+ax = gca;
+return;
+ax.FontSize = 14;
+ax.XLim = [-105,105];
+ax.YLim = [-105,105];
+xticks([-120:20:120]);
+yticks([-120:20:120]);
+ax.TickDir = 'out';
+ax.TickLength = [0.02 0.02];
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+ax.GridLineStyle = '--';
+ax.GridAlphaMode = 'manual';
+ax.GridAlpha = 0.5;
+ax.GridColorMode = 'manual';
+ax.GridColor = 'white';
+%set(gca,'ColorScale','log');
+
 figure('Name','Projection of Midplane reconstruction','NumberTitle','off');
 horProj = sum(midplaneImage, 2);
 xx = [-104:208/103:104];
@@ -95,4 +131,3 @@ set(gca,'ColorScale','log');
 % [filepath,name,ext] = fileparts(datafile_red); %separates path, name and extension of the file
 % figname = strcat('Q:\Documents\PET\Pics\',name,'_reconstr.png'); % create name for figure
 % saveas(gcf, figname)  % save figure with the proper name to folder
-

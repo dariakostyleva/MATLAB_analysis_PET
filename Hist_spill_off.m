@@ -29,9 +29,23 @@ subplot(6,1,4);
 h4 = histogram(events4(:,6),binning4,'DisplayStyle','stairs','DisplayName','C12_018_red_spilloff');
 l = legend; set(l, 'Interpreter', 'none');
 subplot(6,1,5);
+pet_shift = 1600;
 h5 = histogram(events5(:,6),binning5,'DisplayStyle','stairs','DisplayName','C11_007_red_spilloff');
+for k = 0:517
+    l = line([k*4800+pet_shift k*4800+pet_shift],[0 1000],'Color','#77AC30','LineStyle','--');
+end
 l = legend; set(l, 'Interpreter', 'none');
 subplot(6,1,6);
 h6 = histogram(events6(:,6),binning6,'DisplayStyle','stairs','DisplayName','C10_001_red_spilloff');
 l = legend; set(l, 'Interpreter', 'none');
 
+z33=load('D:\PET_data_June_2021\C12_018_red.mat');
+events33=z33.z; nevents33 = length(events33); bins=100;
+tt33 = events33(nevents33-1,6); binning33 = round(tt33/bins);
+figure;
+subplot(2,1,1);
+h33 = histogram(events33(:,6),binning33,'DisplayStyle','stairs','DisplayName','C11_007_red ALL');
+l = legend; set(l, 'Interpreter', 'none');
+subplot(2,1,2);
+h4 = histogram(events4(:,6),binning4,'DisplayStyle','stairs','DisplayName','C12_018_red_spilloff');
+l = legend; set(l, 'Interpreter', 'none');

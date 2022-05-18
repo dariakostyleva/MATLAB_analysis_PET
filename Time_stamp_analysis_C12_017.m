@@ -42,7 +42,7 @@ stairs(h_e,h_c,'DisplayName','PET data');
 hold on;
 stairs(ifc_shifted,ifc_int/500,'DisplayName','IFC data');
 legend;
-%return;
+return;
 %% removing spill-on data using comparison with IFC histo
 n_spillon = 0;
 events_mod = events;
@@ -54,7 +54,7 @@ spill = 2100; % msec spill on duration
 % spill_number = 0; % number of spills still written after ifc stopped writing
 % cycle = 2300; % msec full cycle
 % spill = 1100; % msec spill on duration
-
+%return;
 %nevents = 100000;
 for i=1:nevents
     if mod(i,10000) == 0
@@ -88,13 +88,13 @@ figure;
 hold on;
 h = histogram(events(:,6),binning,'DisplayStyle','stairs','DisplayName','C12 017');
 h_mod = histogram(events_spilloff(:,6),binning,'DisplayName','C12 017 spill off');
-stairs(ifc_shifted,ifc_int/100,'DisplayName','IFC data');
+stairs(ifc_shifted,ifc_int/5000,'DisplayName','IFC data');
 hold off;
 legend;
 
 figure;
 h_mod = histogram(events_spilloff(:,6),binning,'DisplayName','C12 017 spill off');
-%return;
+return;
 %%
 save('D:\PET_data_feb_2021\C12_017_red_spilloff.mat','events_spilloff','-v7.3');
 save('D:\PET_data_feb_2021\C12_017_red_spillon.mat','events_spillon','-v7.3');
