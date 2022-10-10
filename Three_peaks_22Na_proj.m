@@ -1,6 +1,13 @@
-fig = openfig('Q:\Documents\PET\MATLAB_figures_PET\C11_007.fig')
+fig = openfig('Q:\Documents\PET\MATLAB_figures_PET\Na22\Na22_sens_0005_red_image_corr.fig')
 arr = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 
+xx = [-119:2:119];
+horProj = sum(arr(55:65,:));
+figure;
+plot(xx,horProj);
+
+
+return;
 figure('Name','Analysis of point source data 1','NumberTitle','off');
 %set(gca,'position',[100,300,1100,550])
 x = [-104:2:104];

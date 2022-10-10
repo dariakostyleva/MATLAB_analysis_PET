@@ -66,7 +66,7 @@ for i = file_num_i:file_num_f
         trues = z.z;
         clear z;
         ntrues = length(trues);
-        rate = ntrues/t; % [counts/sec]
+        rate = ntrues/t % [counts/sec]
         
         % abs error of source rate 
         err_r = sqrt( (sqrt(ntrues)/ntrues)^2 + (dt/t)^2 )*rate;

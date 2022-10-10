@@ -7,7 +7,17 @@
 datafile = uigetfile('-file'); % select file to analyse
 % y = uiimport('-file'); % select file to analyse
 y=load(datafile)
-z=y.y;
+%return;
+%z=y.y;
+z=y.events_spilloff;
+% cutting z 
+% [row1,col1] = find(z>55990);   %C10_001
+% [row2,col2] = find(z>1246000); %C10_001
+% [row2,col2] = find(z>2416000);  %C11_007
+[row2,col2] = find(z>1018000);  %C12_017
+% z(1:row1(1),:) = [];
+ z(row2(1):length(z),:) = [];
+   
 %clear y; 
 size_Z=size(z); % size of matrix, number of events = size_Z(1), size_Z(2)=10 (10 columns)
 %DataAcquisitionTime=strcat(num2str(z(10^7-1,9)*0.001),'s') %

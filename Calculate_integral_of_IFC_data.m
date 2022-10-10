@@ -1,6 +1,18 @@
-% this script calculates number of IFC counts per spill
-ifc_hist = load("hist_0255_C10_014_200msec_bins.txt");
 
+
+
+% this script calculates number of IFC counts per spill
+ifc_hist_C12 = load("hist_0259_C12_017_100msec_bins.txt");
+ifc_hist_C10a = load("hist_0255_C10_014_100msec_bins.txt");
+ifc_hist_C10m = load("hist_0256_C10_015_100msec_bins.txt");
+ifc_hist_C11 = load("hist_0248_C11_012_100msec_bins.txt");
+%sum(ifc_hist_C10a(1:9070,2))
+sum(ifc_hist_C10m(1:9070,2))
+sum(ifc_hist_C11(1:9070,2))
+sum(ifc_hist_C12(:,2))
+
+
+return;
 counts_accum = 0;
 index_start = 174; %look up in how the IFC is shifted in respect to PET, look for zero
 

@@ -1,16 +1,16 @@
 % ***** Macro to make reconstruction of image in a mid plane z = 0 ****** 
 
 %datafile_red = uigetfile('*.mat')
-datafile_red = ('D:\PET_data_June_2021\june21_Ge68_source_0012_red.mat');
+datafile_red = ('D:\PET_data_June_2021\C12_018_red_spilloff.mat');
 z=load(datafile_red)
 %z = load('array.mat');
 tic; % Start timnae counter
-events=z.z;
-%events=z.events_spilloff;
+%events=z.z;
+events=z.events_spilloff;
 %events=z.events_spillon;
 clear z;
 nevents=length(events)  % number of events
-%return;
+
 
 PlaneOffset = 0;   % position of image plane from scanner center, in mm 
 theta = (7.5/2)*pi/180; % tapered angle
@@ -39,8 +39,8 @@ for c = 0:51
     geom(c+1,1) = c;
     geom(c+1,2) = xcalc;
     geom(c+1,3) = ycalc;
-    if c == 51 
         geom   % printout of geometry array without randomisation!
+    if c == 51 
         geom(c+1,3);
         width = (geom(c+1,2) + 0.5*h*cos(3*theta) + dx*cos(3*theta))*2; % mm, width of one scanner head in x direction
         height =(geom(c+1,3) + 0.5*h*cos(3*0) + dy*cos(3*0))*2; % mm, height of one scanner head in y direction
@@ -50,61 +50,22 @@ end
 % ****** Here the loop over events starts
 % NOTE: for NON-REDUCED data file change to events(n,3),events(n,4) and events(n,5),events(n,6) 
 counter = 0;
-cycle = 4800; % time of one cycle, ferbuary 2021
-%cycle = 2300; % time of one cycle, june 2021
-%ncycle = 212; % file C12_017 number of cycles to be analysed
-%ncycle = 248; % 248 cycles in file C10_001 
-%ncycle = 503; % 503 cycles in file C11_007 
-%ncycle = 923; % 923 cycles in file C12_018
-%ncycle = 1; % 923 cycles in file C10_014
-ncycle = 200; % corresponding to 15 min of irradiation
+%cycle = 4800; % time of one cycle, ferbuary 2021
+cycle = 2300; % time of one cycle, ferbuary 2021
+ncycle = 1; 
 time = cycle*ncycle; 
-%pet_shift = 2900; % file C12_017, see the number in Time_stamp_analysis_Carbon script
-%pet_shift = 56400; % file C10_001, see the number in Time_stamp_analysis_Carbon script
-%pet_shift = 1600 + cycle*490; % file C11_007, see the number in Time_stamp_analysis_Carbon script
-%pet_shift = 0;
-%pet_shift = 96000 + 4800*randi(200); % file C12_018, see the number in Time_stamp_analysis_Carbon script
-%pet_shift = 9790; % file C10_003
-pet_shift = 0;
+%pet_shift_start = 1817600; % shift to get on plateau C11_007
+%pet_shift_start = 1830800;  % shift to get on plateau C11_012
+%pet_shift_start = 809500;  % shift to get on plateau C12_017
+pet_shift_start = 1757810;
+% february data
+%pet_shift = pet_shift_start + randi([1 50],1,1)*cycle+2000; % on plato randomly select cycles
+% june data
+pet_shift = pet_shift_start + randi([1 50],1,1)*cycle+1000; % on plato randomly select cycles
 
-%%% taking cycles randomly
-% n_cycle = 10;
-% lim = 100; % fisrt ~80 sec of file
-% lim = round(events(nevents,6)/4800); % total spill number in file
-% generat n_cycle random integer numbers in ascending order
-% rand_cyc = sort(randi(lim,1,n_cycle));
-% rand_cyc = [2 3 5 7 10 14 17 19 20]; % spills on slope
-
-
-%for n= 1:20:nevents
-%for n= 1:10:nevents
-%for n= 1:4:nevents
-% if events(nevents-1,6) <= time
-%     disp('Selected number of cycles is larger than time of file!');
-%     fprintf('File time is %d \nSelected time is %d \n',events(nevents-1,6),time);
-%     return;
-% end
-
-%nevents = 1000000;
+%nevents = 1000;
 for n= 1:nevents
-    
-    % loop and condition for taking spills randomly
-%     for k = 1:length(rand_cyc)
-%         if and(events(n,6) >= cycle*rand_cyc(k), events(n,6) <= cycle*(rand_cyc(k)+1))
-%            cycle*rand_cyc(k);
-
-            % for some files pet daq started in advanse, so 1st spill is
-            % not where the time is zero, thus shift and skip those bg
-            % events
-%             while events(n,6) < 2000
-%                 disp('skipping');
-%                 n
-%                 events(n,6)
-%                 continue;
-%             end
-            
-            %condition for taking several spills one by one    
-            
+  
             if events(n,6) < pet_shift
                 %disp('skipping');
                 continue;
@@ -215,7 +176,20 @@ for n= 1:nevents
     %end
 end
 %%
-figure('Name','Reconstruction, 2d image','NumberTitle','off','visible','on');
+events_in(events_in==0) = NaN;
+figure;
+hold on;
+histogram(events_in(:,6),round(events(nevents-1,6)/100),'DisplayStyle','bar');
+histogram(events(:,6),round(events(nevents-1,6)/100),'DisplayStyle','stairs');
+l1 = line([pet_shift_start pet_shift_start],[0 500],'Color','#77AC30','LineStyle','--','LineWidth',2);
+l2 = line([pet_shift_start+50*cycle+2000 pet_shift_start+50*cycle+2000],[0 500],'Color','#77AC30','LineStyle','--','LineWidth',2);
+%set(gca, 'YScale', 'log');
+% NOTE: what is defined as the scanner x-coordinate is the y-coordinate in
+% the image...
+fprintf('In file %s \n there are %d PET counts \n',datafile_red,counter);
+%return;
+
+figure('Name','Reconstruction, 2d image','NumberTitle','off','visible','off');
 xrange = [-119:2:119];
 yrange = [-119:2:119];
 image = imagesc(xrange,yrange,midplaneImage);
@@ -246,25 +220,9 @@ ax.GridAlpha = 0.5;
 ax.GridColorMode = 'manual';
 ax.GridColor = 'white';
 
-% stop counter
-toc;
-
-
-events_in(events_in==0) = NaN;
-figure;
-hold on;
-histogram(events_in(:,6),round(events(nevents-1,6)/100),'DisplayStyle','bar');
-histogram(events(:,6),round(events(nevents-1,6)/100),'DisplayStyle','stairs');
-%set(gca, 'YScale', 'log');
-% NOTE: what is defined as the scanner x-coordinate is the y-coordinate in
-% the image...
-fprintf('In file %s \n there are %d PET counts \n',datafile_red,counter);
-%return;
-
 % saving image as matlab figure
 [filepath,name,ext] = fileparts(datafile_red); %separates path, name and extension of the file
-%figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_image_',num2str(ncycle),'c_Hans.fig'); % create name for figure
-figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_image.fig'); % create name for figure
+figname = strcat('Q:\Documents\PET\MATLAB_figures_PET\',name,'_image_',num2str(ncycle),'c_plato_rand20.fig'); % create name for figure
 saveas(image, figname);  % saves figure 
 
 figure('Name','Auxiliary plots','NumberTitle','off');
@@ -294,7 +252,8 @@ ylabel('Counts');
 set(gca,'ColorScale','log');
 title('Projection of image on X')
 
-
+% stop counter
+toc;
 
 % ***** 2D histogram, uncomment if needed ********
 % figure('Name','Reconstruction, 2d histo','NumberTitle','off'); % create figure

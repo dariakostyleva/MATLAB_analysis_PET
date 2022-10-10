@@ -27,6 +27,11 @@ ifc_hist5 = load("hist_0233_C11_007_100msec_bins.txt");
 ifc_hist6 = load("hist_0219_C10_001_100msec_bins.txt");
 
 figure;
+stairs(ifc_hist1(:,1),ifc_hist1(:,2),'DisplayName','hist_0259_C12_017_100msec_bins');
+l = legend; set(l, 'Interpreter', 'none');
+
+%return;
+figure;
 subplot(6,2,1);
 h1 = histogram(events1(:,6),binning1,'DisplayStyle','stairs','DisplayName','C12_017_red');
 l = legend; set(l, 'Interpreter', 'none');

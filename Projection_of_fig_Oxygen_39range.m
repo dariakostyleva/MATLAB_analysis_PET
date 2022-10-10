@@ -2,30 +2,55 @@
 % beam axis
 % Author: Daria K
 
-fig_O15 = openfig('Q:\Documents\PET\MATLAB_figures_PET\O15_008_red_image.fig');
-arr_O15 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
+fig_O15le = openfig('Q:\Documents\PET\MATLAB_figures_PET\O15_008_red_image_corr.fig','invisible');
+arr_O15le = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 
-fig_O14 = openfig('Q:\Documents\PET\MATLAB_figures_PET\O14_016_red_image.fig');
-arr_O14 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
+fig_O14le = openfig('Q:\Documents\PET\MATLAB_figures_PET\O14_016_red_image_corr.fig','invisible');
+arr_O14le = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 
-fig_O16 = openfig('Q:\Documents\PET\MATLAB_figures_PET\O16_015_red_image.fig');
-arr_O16 = get(get(gca,'Children'),'CData'); % getting data from figure as an array
+fig_O16le = openfig('Q:\Documents\PET\MATLAB_figures_PET\O16_015_red_image_corr.fig','invisible');
+arr_O16le = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 
-figure('Name','Proj Oxygen 39 mm','NumberTitle','off');
-%set(gca,'position',[100,300,1100,550])
+fig_O16le_un = openfig('Q:\Documents\PET\MATLAB_figures_PET\O16_015_red_image.fig','invisible');
+arr_O16le_un = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 
-xx = [-119:2:119];
-yy = [-119:2:119];
+fig_O15he = openfig('Q:\Documents\PET\MATLAB_figures_PET\O15_001_red_image_corr.fig','invisible');
+arr_O15he = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 
-verProj = sum(arr_O15, 2);
-horProj_O15 = sum(arr_O15, 1);
-horProj_O14 = sum(arr_O14, 1);
-horProj_O16 = sum(arr_O16, 1);
+fig_O14he = openfig('Q:\Documents\PET\MATLAB_figures_PET\O14_003_red_image_corr.fig','invisible');
+arr_O14he = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 
-horProf_O15 = arr_O15(60,:);
-horProf_O14 = arr_O14(60,:);
-horProf_O16 = arr_O16(60,:);
+fig_O16he = openfig('Q:\Documents\PET\MATLAB_figures_PET\O16_005_red_image_corr.fig','invisible');
+arr_O16he = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 
+fig_O16he_un = openfig('Q:\Documents\PET\MATLAB_figures_PET\O16_005_red_image.fig','invisible');
+arr_O16he_un = get(get(gca,'Children'),'CData'); % getting data from figure as an array
+
+depth_pmma_le = [-84:2:155];
+depth_pmma_he = [-49:2:190];
+
+figure;
+subplot(2,1,1);
+hold on
+plot(depth_pmma_le,sum(arr_O15le(40:80,:))./max(sum(arr_O15le(40:80,:))),'-o','DisplayName','O15 corr');
+plot(depth_pmma_le,sum(arr_O14le(40:80,:))./max(sum(arr_O14le(40:80,:))),'-o','DisplayName','O14 corr');
+plot(depth_pmma_le,sum(arr_O16le(40:80,:))./max(sum(arr_O16le(40:80,:))),'-o','DisplayName','O16 corr');
+plot(depth_pmma_le,sum(arr_O16le_un(40:80,:))./max(sum(arr_O16le_un(40:80,:))),'-o','DisplayName','O16 uncorr');
+hold off;
+legend;
+
+subplot(2,1,2);
+hold on
+plot(depth_pmma_he,sum(arr_O15he(40:80,:))./max(sum(arr_O15he(40:80,:))),'-o','DisplayName','O15 corr');
+plot(depth_pmma_he,sum(arr_O14he(40:80,:))./max(sum(arr_O14he(40:80,:))),'-o','DisplayName','O14 corr');
+plot(depth_pmma_he,sum(arr_O16he(40:80,:))./max(sum(arr_O16he(40:80,:))),'-o','DisplayName','O16 corr');
+plot(depth_pmma_he,sum(arr_O16he_un(40:80,:))./max(sum(arr_O16he_un(40:80,:))),'-o','DisplayName','O16 uncorr');
+hold off;
+legend;
+
+
+
+return;
 subplot(2,2,1);
 plot(xx,horProj_O15,'DisplayName','O15');
 title('Projection along beam from left to right')

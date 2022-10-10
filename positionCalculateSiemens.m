@@ -2,7 +2,8 @@
 
 function [x, y] = positionCalculateSiemens(crystalx, crystaly)
     % start with defining dimensions
-    sizeCrystal = 4;    % in mm
+    %sizeCrystal = 4;    % in mm
+    sizeCrystal = 240/52;
     numCrystal = 52;    % number of crystal rows and columns in each scanner panel
      
 % The calculation below does not take the gaps in-between block detectors

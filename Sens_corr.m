@@ -6,12 +6,12 @@
 %%%%
 
 %%% Load the sensitivity map
-map = load('sens_corr_map_pin_1_1.mat'); % map is dimensionless
+map = load('sens_corr_map_pin_2.mat'); % map is dimensionless
 map = map.map;
 
 %%% Load image to be corrected
-filepath = 'Q:\Documents\PET\MATLAB_figures_PET\C10_015_figs\';  
-name = 'C10_015_red_image'; 
+filepath = 'Q:\Documents\PET\MATLAB_figures_PET\';  
+name = 'june21_Ge68_source_0012_red_image'; 
 ext = '.fig';
 fig_image_name = append(filepath,name,ext);
 openfig(fig_image_name,'invisible');
@@ -20,6 +20,7 @@ image = get(get(gca,'Children'),'CData'); % getting data from figure as an array
 %%% Divide image by map
 corr_image = image./map; % corrected image in [counts]
 fprintf('In file %s \n there are %d decays \n',fig_image_name,sum(corr_image,'all','omitnan'));
+%return;
 
 %%% Save image
 range = [-119:2:119];
